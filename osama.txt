@@ -1,0 +1,30 @@
+لبدء مشروع Next.js جديد:
+npm install -g create-next-app
+npx create-next-app@latest my-next-app
+cd my-next-app && npm run dev
+لبدء مشروع Django جديد:
+python -m pip install django
+django-admin startproject project
+cd server
+py manage.py migrate
+py manage.py runserver
+
+اكونت جوجل 
+
+mail : Pmstu.sa@gmail.com      pass : Voro10203040*
+  
+college link 
+https://www.taibahu.edu.sa/admission-and-study/colleges
+
+
+# الطريقة 1: Seed Demo (أسرع)
+cd server
+python manage.py seed_demo
+
+# الطريقة 2: Seed via API (أكثر واقعية)
+cd server
+python manage.py seed_via_api
+
+
+
+استنادًا إلى هيكل المشروع الحالي في مجلدَي client وسيرفر، يرجى مراجعة كافة الملفات والكومبوننتس في الواجهة الأمامية لتحديد تبعياتها من الواجهة الخلفية. قم بمراجعة شاملة للـ APIs، والـ URLs، والموديلز في الباك وتأكد من صحة أسمائها وحقولها. بعد ذلك، قم بربطها وتحديثها بشكل صحيح، مع مراعاة التعامل الآمن مع الـ Tokens في كل صفحة، دون التأثير على لوجيك المشروع.

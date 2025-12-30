@@ -1,0 +1,1178 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                     دليل المطور Frontend الشامل                          ║
+║               إدارة مطابع جامعة طيبة - Taibah University                 ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+📋 المحتويات:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. نظام الألوان الرسمي (Brand Colors)
+2. Typography - الخطوط والأحجام
+3. Components - المكونات الأساسية
+4. Layouts - التخطيطات
+5. Responsive Design - التصميم المتجاوب
+6. CSS Framework Integration
+7. Best Practices - أفضل الممارسات
+
+═══════════════════════════════════════════════════════════════════════════
+📌 SECTION 1: نظام الألوان الرسمي
+═══════════════════════════════════════════════════════════════════════════
+
+🎨 الألوان الأساسية:
+──────────────────────────
+
+/* Primary Colors - الألوان الرئيسية من جامعة طيبة */
+:root {
+  /* الألوان الأساسية */
+  --color-primary: #0A8E6E;          /* Teal Green - الأخضر الرئيسي */
+  --color-primary-light: #0DA885;    /* نسخة فاتحة */
+  --color-primary-dark: #087459;     /* نسخة داكنة */
+  
+  --color-secondary: #4056E3;        /* Royal Blue - الأزرق الملكي */
+  --color-secondary-light: #5A6FE8;  /* نسخة فاتحة */
+  --color-secondary-dark: #2D3DB5;   /* نسخة داكنة */
+  
+  --color-accent: #00AEDA;           /* Bright Sky Blue */
+  --color-accent-light: #00C4F5;     /* نسخة فاتحة */
+  --color-accent-dark: #0089AD;      /* نسخة داكنة */
+  
+  /* الألوان الداكنة */
+  --color-dark: #111144;             /* Deep Navy Blue */
+  --color-dark-light: #1a1a5e;       /* نسخة فاتحة */
+  
+  /* الألوان المحايدة */
+  --color-light-gray: #F2F2F2;       /* خلفيات */
+  --color-gray: #E0E0E0;             /* حدود */
+  --color-medium-gray: #999999;      /* نصوص ثانوية */
+  --color-dark-gray: #666666;        /* نصوص */
+  
+  /* ألوان الحالات */
+  --color-success: #4CAF50;          /* نجاح */
+  --color-warning: #FFC107;          /* تحذير */
+  --color-danger: #E53935;           /* خطأ */
+  --color-info: #2196F3;             /* معلومة */
+  
+  /* ألوان الحالات الخاصة بالطلبات */
+  --status-completed: #4CAF50;       /* مكتمل */
+  --status-processing: #2196F3;      /* قيد المعالجة */
+  --status-pending: #FFC107;         /* قيد الاعتماد */
+  --status-rejected: #E53935;        /* مرفوض */
+  
+  /* خلفيات الحالات */
+  --bg-completed: #d4edda;
+  --bg-processing: #cce5ff;
+  --bg-pending: #fff3cd;
+  --bg-rejected: #f8d7da;
+  
+  /* نصوص الحالات */
+  --text-completed: #155724;
+  --text-processing: #004085;
+  --text-pending: #856404;
+  --text-rejected: #721c24;
+  
+  /* الظلال */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.2);
+  
+  /* التدرجات */
+  --gradient-primary: linear-gradient(135deg, #0A8E6E 0%, #4056E3 100%);
+  --gradient-secondary: linear-gradient(135deg, #4056E3 0%, #00AEDA 100%);
+  --gradient-dark: linear-gradient(180deg, #111144 0%, #1a1a5e 100%);
+  
+  /* الشفافية */
+  --overlay-dark: rgba(17, 17, 68, 0.95);
+  --overlay-light: rgba(255, 255, 255, 0.95);
+}
+
+
+═══════════════════════════════════════════════════════════════════════════
+📝 SECTION 2: Typography - الخطوط
+═══════════════════════════════════════════════════════════════════════════
+
+/* استيراد الخطوط */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
+
+/* أو استخدم خط ToshA إذا كان متوفراً محلياً */
+@font-face {
+  font-family: 'ToshA';
+  src: url('../fonts/ToshA-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ToshA';
+  src: url('../fonts/ToshA-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ToshA';
+  src: url('../fonts/ToshA-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+:root {
+  /* الخط الأساسي */
+  --font-primary: 'ToshA', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  
+  /* أحجام الخطوط */
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.875rem;     /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;     /* 18px */
+  --font-size-xl: 1.25rem;      /* 20px */
+  --font-size-2xl: 1.5rem;      /* 24px */
+  --font-size-3xl: 1.875rem;    /* 30px */
+  --font-size-4xl: 2.25rem;     /* 36px */
+  --font-size-5xl: 3rem;        /* 48px */
+  
+  /* أوزان الخطوط */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  
+  /* ارتفاع السطر */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  --line-height-loose: 2;
+  
+  /* تباعد الأحرف */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+}
+
+/* أنماط Typography الجاهزة */
+body {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-dark);
+  direction: rtl;
+  text-align: right;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--color-dark);
+  margin-bottom: 1rem;
+}
+
+h1 { font-size: var(--font-size-4xl); }
+h2 { font-size: var(--font-size-3xl); }
+h3 { font-size: var(--font-size-2xl); }
+h4 { font-size: var(--font-size-xl); }
+h5 { font-size: var(--font-size-lg); }
+h6 { font-size: var(--font-size-base); }
+
+p {
+  margin-bottom: 1rem;
+  line-height: var(--line-height-relaxed);
+}
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.text-muted { color: var(--color-medium-gray); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-danger { color: var(--color-danger); }
+
+
+═══════════════════════════════════════════════════════════════════════════
+🧩 SECTION 3: Components - المكونات الأساسية
+═══════════════════════════════════════════════════════════════════════════
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔘 BUTTONS - الأزرار
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/* الزر الأساسي */
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  min-height: 44px; /* للموبايل */
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* أنواع الأزرار */
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(10, 142, 110, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(10, 142, 110, 0.4);
+}
+
+.btn-secondary {
+  background: var(--color-secondary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(64, 86, 227, 0.3);
+}
+
+.btn-success {
+  background: var(--color-success);
+  color: white;
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  color: white;
+}
+
+.btn-warning {
+  background: var(--color-warning);
+  color: var(--color-dark);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.btn-outline:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* أحجام الأزرار */
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-sm);
+  min-height: 36px;
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: var(--font-size-lg);
+  min-height: 52px;
+}
+
+.btn-block {
+  width: 100%;
+  display: block;
+}
+
+.btn-rounded {
+  border-radius: 2rem;
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📇 CARDS - البطاقات
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  border: 1px solid var(--color-gray);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+  padding: 1rem 1.5rem;
+  background: var(--color-light-gray);
+  border-bottom: 2px solid var(--color-primary);
+  border-radius: 1rem 1rem 0 0;
+  margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+}
+
+.card-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-dark);
+  margin: 0;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-footer {
+  padding: 1rem 1.5rem;
+  background: var(--color-light-gray);
+  border-top: 1px solid var(--color-gray);
+  border-radius: 0 0 1rem 1rem;
+  margin: 1.5rem -1.5rem -1.5rem -1.5rem;
+}
+
+/* بطاقات خاصة */
+.card-service {
+  text-align: center;
+  padding: 2rem;
+  border: 2px solid transparent;
+}
+
+.card-service:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-10px);
+}
+
+.card-service .icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.card-order {
+  border-right: 5px solid var(--color-gray);
+}
+
+.card-order.priority-high {
+  border-right-color: var(--color-danger);
+}
+
+.card-order.priority-medium {
+  border-right-color: var(--color-warning);
+}
+
+.card-order.priority-low {
+  border-right-color: var(--color-primary);
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 STATS CARDS - بطاقات الإحصائيات
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: var(--shadow-md);
+  border-right: 5px solid var(--color-primary);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-number {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: var(--font-size-base);
+  color: var(--color-dark-gray);
+  font-weight: var(--font-weight-medium);
+}
+
+.stat-icon {
+  font-size: 3rem;
+  opacity: 0.2;
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏷️ BADGES - الشارات
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 1.5rem;
+}
+
+.badge-completed {
+  background: var(--bg-completed);
+  color: var(--text-completed);
+}
+
+.badge-processing {
+  background: var(--bg-processing);
+  color: var(--text-processing);
+}
+
+.badge-pending {
+  background: var(--bg-pending);
+  color: var(--text-pending);
+}
+
+.badge-rejected {
+  background: var(--bg-rejected);
+  color: var(--text-rejected);
+}
+
+.badge-success {
+  background: var(--color-success);
+  color: white;
+}
+
+.badge-warning {
+  background: var(--color-warning);
+  color: var(--color-dark);
+}
+
+.badge-danger {
+  background: var(--color-danger);
+  color: white;
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 FORMS - النماذج
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-dark);
+}
+
+.form-label.required::after {
+  content: " *";
+  color: var(--color-danger);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--color-dark);
+  background: white;
+  border: 2px solid var(--color-gray);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(10, 142, 110, 0.1);
+}
+
+.form-input:disabled,
+.form-select:disabled,
+.form-textarea:disabled {
+  background: var(--color-light-gray);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Radio و Checkbox */
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 2px solid var(--color-gray);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-check:hover {
+  border-color: var(--color-primary);
+  background: rgba(10, 142, 110, 0.05);
+}
+
+.form-check input[type="radio"],
+.form-check input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* File Upload */
+.file-upload {
+  border: 3px dashed var(--color-primary);
+  border-radius: 1rem;
+  padding: 3rem;
+  text-align: center;
+  background: rgba(10, 142, 110, 0.03);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-upload:hover {
+  background: rgba(10, 142, 110, 0.08);
+  border-color: var(--color-secondary);
+}
+
+.file-upload .icon {
+  font-size: 3rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚨 ALERTS - التنبيهات
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.alert {
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  border-right: 5px solid;
+  font-weight: var(--font-weight-medium);
+}
+
+.alert-success {
+  background: var(--bg-completed);
+  color: var(--text-completed);
+  border-right-color: var(--color-success);
+}
+
+.alert-warning {
+  background: var(--bg-pending);
+  color: var(--text-pending);
+  border-right-color: var(--color-warning);
+}
+
+.alert-danger {
+  background: var(--bg-rejected);
+  color: var(--text-rejected);
+  border-right-color: var(--color-danger);
+}
+
+.alert-info {
+  background: var(--bg-processing);
+  color: var(--text-processing);
+  border-right-color: var(--color-info);
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 PROGRESS BAR - شريط التقدم
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.progress {
+  width: 100%;
+  height: 1.5rem;
+  background: var(--color-gray);
+  border-radius: 1rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  transition: width 0.5s ease;
+}
+
+.progress-bar.animated {
+  animation: progress-animation 1.5s ease-in-out;
+}
+
+@keyframes progress-animation {
+  0% { width: 0; }
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 TABLES - الجداول
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.table-container {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: var(--color-dark);
+  color: white;
+}
+
+.table th {
+  padding: 1rem 1.5rem;
+  text-align: right;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+}
+
+.table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-light-gray);
+}
+
+.table tbody tr:hover {
+  background: rgba(10, 142, 110, 0.05);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+═══════════════════════════════════════════════════════════════════════════
+🗂️ SECTION 4: Layouts - التخطيطات
+═══════════════════════════════════════════════════════════════════════════
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 MAIN LAYOUT - التخطيط الرئيسي
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/* الهيكل العام */
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-light-gray);
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* الهيدر */
+.header {
+  background: var(--color-dark);
+  color: white;
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-logo img {
+  height: 50px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-notification {
+  position: relative;
+  cursor: pointer;
+}
+
+.header-notification .badge {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background: var(--color-danger);
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 1rem;
+}
+
+/* Dashboard Layout */
+.dashboard {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: calc(100vh - 80px);
+}
+
+/* السايدبار */
+.sidebar {
+  background: var(--gradient-dark);
+  color: white;
+  padding: 2rem 0;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  padding-right: 2.5rem;
+}
+
+.sidebar-item.active {
+  background: var(--color-primary);
+  border-right: 4px solid var(--color-accent);
+}
+
+.sidebar-icon {
+  font-size: 1.3rem;
+}
+
+/* المحتوى الرئيسي */
+.main-content {
+  padding: 2rem;
+  background: var(--color-light-gray);
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📱 GRID SYSTEM - نظام الشبكة
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.container-fluid {
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -0.5rem;
+}
+
+.col {
+  flex: 1;
+  padding: 0 0.5rem;
+}
+
+/* Grid للإحصائيات */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Grid للخدمات */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+
+═══════════════════════════════════════════════════════════════════════════
+📱 SECTION 5: Responsive Design - التصميم المتجاوب
+═══════════════════════════════════════════════════════════════════════════
+
+/* Breakpoints */
+/* Extra Small: < 576px (Mobile) */
+/* Small: 576px - 768px (Mobile Landscape / Small Tablet) */
+/* Medium: 768px - 992px (Tablet) */
+/* Large: 992px - 1200px (Desktop) */
+/* Extra Large: > 1200px (Large Desktop) */
+
+/* Mobile First Approach */
+
+/* Small devices (landscape phones, less than 768px) */
+@media (max-width: 767.98px) {
+  .header {
+    padding: 1rem;
+  }
+  
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebar {
+    display: none;
+  }
+  
+  .sidebar.mobile-open {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 250px;
+    z-index: 2000;
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+  
+  .card {
+    padding: 1rem;
+  }
+  
+  h1 { font-size: var(--font-size-3xl); }
+  h2 { font-size: var(--font-size-2xl); }
+  h3 { font-size: var(--font-size-xl); }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+  .services-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+
+═══════════════════════════════════════════════════════════════════════════
+⚡ SECTION 6: Utilities - الأدوات المساعدة
+═══════════════════════════════════════════════════════════════════════════
+
+/* Spacing */
+.m-0 { margin: 0; }
+.m-1 { margin: 0.25rem; }
+.m-2 { margin: 0.5rem; }
+.m-3 { margin: 1rem; }
+.m-4 { margin: 1.5rem; }
+.m-5 { margin: 3rem; }
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.mt-5 { margin-top: 3rem; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mb-5 { margin-bottom: 3rem; }
+
+.p-0 { padding: 0; }
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 1rem; }
+.p-4 { padding: 1.5rem; }
+.p-5 { padding: 3rem; }
+
+/* Text Alignment */
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+
+/* Display */
+.d-none { display: none; }
+.d-block { display: block; }
+.d-inline { display: inline; }
+.d-inline-block { display: inline-block; }
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+
+/* Flex */
+.flex-row { flex-direction: row; }
+.flex-column { flex-direction: column; }
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.align-start { align-items: flex-start; }
+.align-center { align-items: center; }
+.align-end { align-items: flex-end; }
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+.gap-4 { gap: 1.5rem; }
+
+/* Width & Height */
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+
+/* Shadows */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* Borders */
+.rounded { border-radius: 0.5rem; }
+.rounded-lg { border-radius: 1rem; }
+.rounded-full { border-radius: 9999px; }
+
+
+═══════════════════════════════════════════════════════════════════════════
+✨ SECTION 7: Animations - الحركات
+═══════════════════════════════════════════════════════════════════════════
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+.slide-in {
+  animation: slideInRight 0.5s ease;
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+
+═══════════════════════════════════════════════════════════════════════════
+🎯 SECTION 8: Best Practices - أفضل الممارسات
+═══════════════════════════════════════════════════════════════════════════
+
+1. ✅ استخدم CSS Variables للألوان والقيم المتكررة
+2. ✅ اتبع نهج Mobile-First في التصميم المتجاوب
+3. ✅ استخدم Flexbox و Grid للتخطيطات
+4. ✅ اجعل جميع العناصر التفاعلية لا تقل عن 44px للموبايل
+5. ✅ استخدم transition للحركات السلسة
+6. ✅ حافظ على contrast ratio جيد للنصوص (4.5:1)
+7. ✅ اختبر على أحجام شاشات مختلفة
+8. ✅ استخدم box-sizing: border-box للجميع
+9. ✅ اجعل الكود modular وقابل لإعادة الاستخدام
+10. ✅ استخدم BEM أو naming convention واضح
+
+/* Global Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
+═══════════════════════════════════════════════════════════════════════════
+📦 SECTION 9: Integration مع Frameworks
+═══════════════════════════════════════════════════════════════════════════
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+React / Next.js
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// Import the main CSS file
+import './styles/main.css';
+
+// Component example
+export function Button({ variant = 'primary', children, ...props }) {
+  return (
+    <button className={`btn btn-${variant}`} {...props}>
+      {children}
+    </button>
+  );
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Vue.js
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<template>
+  <button :class="['btn', `btn-${variant}`]">
+    <slot />
+  </button>
+</template>
+
+<script>
+export default {
+  props: {
+    variant: {
+      type: String,
+      default: 'primary'
+    }
+  }
+}
+</script>
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tailwind CSS Integration
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#0A8E6E',
+          light: '#0DA885',
+          dark: '#087459',
+        },
+        secondary: {
+          DEFAULT: '#4056E3',
+          light: '#5A6FE8',
+          dark: '#2D3DB5',
+        },
+        accent: '#00AEDA',
+        dark: '#111144',
+      },
+      fontFamily: {
+        sans: ['ToshA', 'Cairo', 'sans-serif'],
+      },
+    },
+  },
+}
+
+
+═══════════════════════════════════════════════════════════════════════════
+📚 ملفات إضافية مطلوبة
+═══════════════════════════════════════════════════════════════════════════
+
+1. styles/
+   ├── main.css (هذا الملف)
+   ├── variables.css (المتغيرات فقط)
+   ├── components.css (المكونات)
+   ├── layouts.css (التخطيطات)
+   └── utilities.css (الأدوات المساعدة)
+
+2. assets/
+   ├── fonts/
+   │   ├── ToshA-Bold.ttf
+   │   ├── ToshA-Medium.ttf
+   │   └── ToshA-Regular.ttf
+   └── images/
+       └── logo.png
+
+
+═══════════════════════════════════════════════════════════════════════════
+🔗 روابط مفيدة
+═══════════════════════════════════════════════════════════════════════════
+
+• CSS Grid: https://css-tricks.com/snippets/css/complete-guide-grid/
+• Flexbox: https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+• CSS Variables: https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties
+• Responsive Design: https://web.dev/responsive-web-design-basics/
+
+
+═══════════════════════════════════════════════════════════════════════════
+© 2025 Taibah University - إدارة مطابع جامعة طيبة
+═══════════════════════════════════════════════════════════════════════════
