@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   title: "إدارة مطابع جامعة طيبة",
   description:
     "منصة شاملة لإدارة طلبات الطباعة والمخزون والاعتمادات في جامعة طيبة.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

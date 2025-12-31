@@ -6,10 +6,14 @@ mail : Pmstu.sa@gmail.com      pass : Voro10203040*
 pmstu.sa@gmail.com 
 Vorolth10203040*
 
+cloud.digitalocean
 pmstu.sa@gmail.com 
 Pass 
 Feras1234560
 
+droplet 
+ip : 
+pass : osam0Esmael
 
 لبدء مشروع Next.js جديد:
 

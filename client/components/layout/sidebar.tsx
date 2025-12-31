@@ -23,8 +23,15 @@ export function Sidebar({
   return (
     <aside className="flex h-full w-64 flex-col border-l border-border bg-surface">
       <div className="px-6 py-8">
-        <p className="text-lg font-semibold text-heading">{title}</p>
-        <p className="text-sm text-muted">
+        <div className="mb-4 flex items-center justify-center">
+          <img 
+            src="/logo.png" 
+            alt="جامعة طيبة - Taibah University" 
+            className="h-16 w-auto object-contain"
+          />
+        </div>
+        <p className="text-lg font-semibold text-heading text-center">{title}</p>
+        <p className="text-sm text-muted text-center">
           Taibah University Print Center Management
         </p>
       </div>

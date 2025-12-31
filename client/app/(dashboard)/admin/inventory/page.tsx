@@ -40,10 +40,9 @@ function AdminInventoryPageContent() {
       setLoading(true);
       const data = await fetchInventoryItems();
       // Handle paginated response
+      // fetchInventoryItems always returns InventoryItem[] array
       if (Array.isArray(data)) {
         setItems(data);
-      } else if (data?.results && Array.isArray(data.results)) {
-        setItems(data.results);
       } else {
         setItems([]);
       }

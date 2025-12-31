@@ -79,8 +79,12 @@ export default function LoginPage() {
     <div className="grid min-h-screen bg-page">
       <div className="mx-auto flex w-full max-w-3xl flex-col justify-center px-6 py-16">
         <div className="mb-12 text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-brand-teal/10 text-3xl text-brand-teal">
-            🏛️
+          <div className="mx-auto mb-6 flex items-center justify-center">
+            <img 
+              src="/logo.png" 
+              alt="جامعة طيبة - Taibah University" 
+              className="h-24 w-auto object-contain"
+            />
           </div>
           <h1 className="mb-2 text-3xl font-bold text-heading">
             إدارة مطابع جامعة طيبة

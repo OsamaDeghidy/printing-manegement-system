@@ -84,6 +84,13 @@ export function TopBar({ className, onToggleSidebar }: TopBarProps) {
         >
           ☰
         </button>
+        <div className="hidden md:flex items-center gap-3">
+          <img 
+            src="/logo.png" 
+            alt="جامعة طيبة" 
+            className="h-10 w-auto object-contain"
+          />
+        </div>
         <div>
           <p className="text-base font-semibold text-heading">
             إدارة مطابع جامعة طيبة
