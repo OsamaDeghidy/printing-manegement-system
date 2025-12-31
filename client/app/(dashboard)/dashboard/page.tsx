@@ -134,7 +134,7 @@ export default function DashboardPage() {
                 <CardHeader className="items-start gap-2">
                   <Badge tone="info">{order.orderCode}</Badge>
                   <p className="text-sm text-muted">
-                    {order.requester?.name || order.requester?.full_name || "غير محدد"}
+                    {order.requester?.name || "غير محدد"}
                     {order.requester?.department
                       ? ` • ${order.requester.department}`
                       : ""}

@@ -48,12 +48,24 @@ export default function OrdersPage() {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const fetchedOrders = await fetchOrders({
-        status: filters.status || undefined,
-        priority: filters.priority || undefined,
-        search: filters.search || undefined,
-      });
-      setOrders(fetchedOrders);
+      const fetchedOrders = await fetchOrders();
+      // Filter client-side
+      let filtered = fetchedOrders;
+      if (filters.status) {
+        filtered = filtered.filter(order => order.status === filters.status);
+      }
+      if (filters.priority) {
+        filtered = filtered.filter(order => order.priority === filters.priority);
+      }
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        filtered = filtered.filter(order => 
+          order.orderCode.toLowerCase().includes(searchLower) ||
+          order.service.name.toLowerCase().includes(searchLower) ||
+          order.requester.name.toLowerCase().includes(searchLower)
+        );
+      }
+      setOrders(filtered);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
       setOrders([]);

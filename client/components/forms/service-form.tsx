@@ -46,16 +46,11 @@ export function ServiceForm({ service }: ServiceFormProps) {
         // Fetch only active entities
         const data = await fetchEntities(true);
         
-        // Handle pagination response (if API returns paginated results)
+        // fetchEntities always returns Entity[]
         let entitiesList: any[] = [];
         if (Array.isArray(data)) {
           entitiesList = data;
-        } else if (data && Array.isArray(data.results)) {
-          // DRF pagination format
-          entitiesList = data.results;
-        } else if (data && typeof data === 'object') {
-          // Try to extract array from response
-          console.warn("Unexpected entities response format:", data);
+        } else {
           entitiesList = [];
         }
         
@@ -122,12 +117,10 @@ export function ServiceForm({ service }: ServiceFormProps) {
         const services = await fetchServices();
         console.log("Fetched services:", services);
         
-        // Handle pagination response
+        // fetchServices always returns Service[]
         let servicesList: any[] = [];
         if (Array.isArray(services)) {
           servicesList = services;
-        } else if (services && Array.isArray(services.results)) {
-          servicesList = services.results;
         } else {
           console.error("Unexpected services response format:", services);
           throw new Error("تنسيق استجابة الـ API غير متوقع");
@@ -319,8 +312,9 @@ export function ServiceForm({ service }: ServiceFormProps) {
         errorMessage = err.message;
         
         // If error has details, show them
-        if (err.details) {
-          const details = err.details;
+        const errWithDetails = err as Error & { details?: any };
+        if (errWithDetails.details) {
+          const details = errWithDetails.details;
           if (details.field_values) {
             errorMessage += `\n\nالحقول: ${JSON.stringify(details.field_values, null, 2)}`;
           } else if (details.service) {
@@ -466,7 +460,7 @@ function FieldRenderer({
       return (
         <Select
           value={typeof value === "string" ? value : ""}
-          onChange={(e) => onChange(e.target.value || null)}
+          onChange={(e) => onChange(e.target.value || undefined)}
           disabled={loadingEntities}
           options={[
             { value: "", label: "بدون" },

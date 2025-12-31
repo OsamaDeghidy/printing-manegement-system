@@ -44,7 +44,12 @@ function AdminReportsPageContent() {
   const { hasRole } = useAuth();
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState<any>(null);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    entity: string;
+    start_date: string;
+    end_date: string;
+    order_type: string;
+  }>({
     entity: "",
     start_date: "",
     end_date: "",
@@ -85,7 +90,14 @@ function AdminReportsPageContent() {
       
       switch (reportTypeToGenerate) {
         case "orders":
-          data = await fetchOrdersReport(filters);
+          data = await fetchOrdersReport({
+            entity: filters.entity || undefined,
+            start_date: filters.start_date || undefined,
+            end_date: filters.end_date || undefined,
+            order_type: filters.order_type && ["design", "print", "general"].includes(filters.order_type)
+              ? (filters.order_type as "design" | "print" | "general")
+              : undefined,
+          });
           break;
         case "productivity":
           data = await fetchProductivityReport(filters.start_date);
@@ -97,7 +109,14 @@ function AdminReportsPageContent() {
           data = await fetchROIReport();
           break;
         default:
-          data = await fetchOrdersReport(filters);
+          data = await fetchOrdersReport({
+            entity: filters.entity || undefined,
+            start_date: filters.start_date || undefined,
+            end_date: filters.end_date || undefined,
+            order_type: filters.order_type && ["design", "print", "general"].includes(filters.order_type)
+              ? (filters.order_type as "design" | "print" | "general")
+              : undefined,
+          });
       }
       
       setReportData({ type: reportTypeToGenerate, data });

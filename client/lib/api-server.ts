@@ -15,8 +15,8 @@ const API_BASE_URL =
  * Note: Since tokens are stored in localStorage (client-side), we can't access them here.
  * The API call will work if the backend allows unauthenticated requests or uses session-based auth.
  */
-function getAuthHeaders(): HeadersInit {
-  const headersList = headers();
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const headersList = await headers();
   // Try to get Authorization header from incoming request
   const authHeader = headersList.get("authorization");
   
@@ -35,7 +35,7 @@ function getAuthHeaders(): HeadersInit {
  * Generic API fetch function for server-side (no localStorage access)
  */
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const authHeaders = getAuthHeaders();
+  const authHeaders = await getAuthHeaders();
   const initHeaders = init?.headers;
   
   let headers: Record<string, string> = {};

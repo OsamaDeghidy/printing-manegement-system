@@ -9,26 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProtectedRoute } from "@/components/auth/protected-route";
-import { fetchVisitRequests } from "@/lib/api-client";
-
-// Visit Request type
-interface VisitRequest {
-  id: string;
-  requester: {
-    id: string;
-    full_name: string;
-  };
-  entity?: {
-    id: string;
-    name: string;
-  };
-  visit_type: string;
-  visit_date: string;
-  visit_time: string;
-  purpose: string;
-  status: string;
-  created_at: string;
-}
+import { fetchVisitRequests, type VisitRequest } from "@/lib/api-client";
 
 function AdminVisitsPageContent() {
   const [requests, setRequests] = useState<VisitRequest[]>([]);
@@ -140,7 +121,7 @@ function AdminVisitsPageContent() {
                 </p>
                 <p>
                   <strong className="text-heading">تاريخ الزيارة:</strong>{" "}
-                  {formatDateTime(request.visit_date, request.visit_time)}
+                  {formatDateTime(request.requested_date, request.requested_time)}
                 </p>
                 {request.entity && (
                   <p>
@@ -151,7 +132,7 @@ function AdminVisitsPageContent() {
                   <strong className="text-heading">مقدم الطلب:</strong> {request.requester.full_name}
                 </p>
                 <p>
-                  <strong className="text-heading">تاريخ التقديم:</strong> {formatDate(request.created_at)}
+                  <strong className="text-heading">تاريخ التقديم:</strong> {formatDate(request.submitted_at)}
                 </p>
               </CardContent>
             </Card>

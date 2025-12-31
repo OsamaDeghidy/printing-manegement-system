@@ -11,6 +11,8 @@ import type { User } from "./types";
 
 // Re-export User type for convenience
 export type { User };
+// Re-export OrderSummary type for convenience
+export type { OrderSummary };
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ??
