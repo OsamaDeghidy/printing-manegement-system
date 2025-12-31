@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.permissions import IsSystemAdmin
+from accounts.permissions import IsSystemAdmin, IsPrintManager
 from inventory.models import InventoryItem, InventoryLog, ReorderRequest
 from inventory.serializers import (
     InventoryItemSerializer,
@@ -17,16 +17,28 @@ from inventory.serializers import (
 class InventoryItemViewSet(viewsets.ModelViewSet):
     queryset = InventoryItem.objects.all()
     serializer_class = InventoryItemSerializer
-    permission_classes = [IsAuthenticated & IsSystemAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["name", "sku", "category"]
     ordering_fields = ["name", "current_quantity", "updated_at"]
+    
+    def get_permissions(self):
+        """
+        Allow all authenticated users to read inventory items (list, retrieve),
+        but only admins can create, update, or delete.
+        """
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated & IsSystemAdmin]
+        return [permission() for permission in permission_classes]
 
     @transaction.atomic
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated & (IsSystemAdmin | IsPrintManager)])
     def adjust(self, request, pk=None):
         item = self.get_object()
-        serializer = InventoryLogSerializer(data=request.data)
+        # Create serializer data with item included
+        serializer_data = {**request.data, "item": str(item.id)}
+        serializer = InventoryLogSerializer(data=serializer_data)
         serializer.is_valid(raise_exception=True)
         quantity = serializer.validated_data["quantity"]
         operation = serializer.validated_data["operation"]

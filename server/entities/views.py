@@ -18,7 +18,17 @@ class EntityViewSet(viewsets.ModelViewSet):
     ViewSet لإدارة الجهات
     """
     queryset = Entity.objects.select_related("parent").prefetch_related("children").all()
-    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        """
+        Allow all authenticated users to read entities (list, retrieve),
+        but only admins can create, update, or delete.
+        """
+        if self.action in ['list', 'retrieve', 'tree', 'children', 'hierarchy', 'by_level']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated & IsSystemAdmin]
+        return [permission() for permission in permission_classes]
     
     def get_serializer_class(self):
         if self.action == "list":

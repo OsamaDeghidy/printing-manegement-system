@@ -16,6 +16,7 @@ class InventoryItemSerializer(serializers.ModelSerializer):
             "unit",
             "current_quantity",
             "minimum_threshold",
+            "min_quantity",
             "maximum_threshold",
             "reorder_point",
             "last_restocked_at",
@@ -29,6 +30,12 @@ class InventoryItemSerializer(serializers.ModelSerializer):
 
 
 class InventoryLogSerializer(serializers.ModelSerializer):
+    item = serializers.PrimaryKeyRelatedField(
+        queryset=InventoryItem.objects.all(),
+        required=False,
+        allow_null=True
+    )
+    
     class Meta:
         model = InventoryLog
         fields = [

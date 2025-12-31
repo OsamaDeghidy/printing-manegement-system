@@ -11,7 +11,7 @@ export interface User {
   };
   department?: string;
   phone_number?: string;
-  is_active?: boolean;
+  is_active: boolean; // Changed to required to match API response
   date_joined?: string;
   last_login?: string;
 }

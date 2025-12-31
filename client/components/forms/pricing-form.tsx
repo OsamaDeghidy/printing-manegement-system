@@ -31,8 +31,8 @@ export function PricingForm({ pricingId, serviceId, onSuccess, onCancel }: Prici
   const [services, setServices] = useState<Service[]>([]);
   const [formData, setFormData] = useState({
     service: serviceId || "",
-    internal_cost: 0,
-    external_cost: 0,
+    internal_cost: "" as number | string,
+    external_cost: "" as number | string,
     notes: "",
     effective_from: "",
     effective_to: "",
@@ -60,8 +60,8 @@ export function PricingForm({ pricingId, serviceId, onSuccess, onCancel }: Prici
       const pricing = await fetchServicePricingDetail(pricingId!);
       setFormData({
         service: pricing.service,
-        internal_cost: pricing.internal_cost,
-        external_cost: pricing.external_cost,
+        internal_cost: pricing.internal_cost || "",
+        external_cost: pricing.external_cost || "",
         notes: pricing.notes || "",
         effective_from: pricing.effective_from ? pricing.effective_from.split("T")[0] : "",
         effective_to: pricing.effective_to ? pricing.effective_to.split("T")[0] : "",
@@ -79,10 +79,16 @@ export function PricingForm({ pricingId, serviceId, onSuccess, onCancel }: Prici
     setLoading(true);
 
     try {
+      if (!formData.service) {
+        alert("يجب اختيار الخدمة");
+        return;
+      }
+      
       const data = {
-        ...formData,
-        internal_cost: parseFloat(formData.internal_cost.toString()),
-        external_cost: parseFloat(formData.external_cost.toString()),
+        service: formData.service,
+        internal_cost: parseFloat(formData.internal_cost.toString()) || 0,
+        external_cost: parseFloat(formData.external_cost.toString()) || 0,
+        notes: formData.notes || undefined,
         effective_from: formData.effective_from || undefined,
         effective_to: formData.effective_to || undefined,
       };
@@ -100,9 +106,12 @@ export function PricingForm({ pricingId, serviceId, onSuccess, onCancel }: Prici
     }
   };
 
-  const savingsPercentage = formData.external_cost > 0
-    ? Math.round(((formData.external_cost - formData.internal_cost) / formData.external_cost) * 100)
-    : 0;
+  const savingsPercentage = 
+    formData.external_cost && 
+    typeof formData.external_cost === "number" && 
+    formData.external_cost > 0
+      ? Math.round(((formData.external_cost - (typeof formData.internal_cost === "number" ? formData.internal_cost : 0)) / formData.external_cost) * 100)
+      : 0;
 
   if (loadingPricing) {
     return (
@@ -146,7 +155,7 @@ export function PricingForm({ pricingId, serviceId, onSuccess, onCancel }: Prici
               <Input
                 type="number"
                 step="0.01"
-                value={formData.internal_cost}
+                value={formData.internal_cost || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, internal_cost: parseFloat(e.target.value) || 0 })
                 }
@@ -161,7 +170,7 @@ export function PricingForm({ pricingId, serviceId, onSuccess, onCancel }: Prici
               <Input
                 type="number"
                 step="0.01"
-                value={formData.external_cost}
+                value={formData.external_cost || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, external_cost: parseFloat(e.target.value) || 0 })
                 }
@@ -224,6 +233,10 @@ export function PricingForm({ pricingId, serviceId, onSuccess, onCancel }: Prici
     </Card>
   );
 }
+
+
+
+
 
 
 

@@ -9,6 +9,9 @@ import {
 } from "@/data/orders";
 import type { User } from "./types";
 
+// Re-export User type for convenience
+export type { User };
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ??
   "http://localhost:8000/api";
@@ -39,7 +42,7 @@ function getAuthHeaders(): HeadersInit {
 /**
  * Generic API fetch function with automatic auth headers
  */
-async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   // Convert HeadersInit to Record<string, string> for easier manipulation
   const authHeaders = getAuthHeaders();
   const initHeaders = init?.headers;
@@ -177,20 +180,20 @@ export async function fetchServices(): Promise<Service[]> {
       } else {
         // Fallback to static data
         console.warn("Falling back to local services data - API response format not recognized");
-        return services as Service[];
+        return services as unknown as Service[];
       }
     }
     
     if (servicesList.length > 0) {
       console.log(`Fetched ${servicesList.length} services from API`);
-      return servicesList as Service[];
+      return servicesList as unknown as Service[];
     } else {
       console.warn("No services found in API response, using static data");
-      return services as Service[];
+      return services as unknown as Service[];
     }
   } catch (error) {
     console.warn("Falling back to local services data:", error);
-    return services as Service[];
+    return services as unknown as Service[];
   }
 }
 
@@ -274,30 +277,44 @@ interface BackendOrderDetailResponse extends BackendOrderListResponse {
   completed_at?: string;
 }
 
+// Helper function to extract array from paginated response
+function extractArrayFromResponse<T>(response: any): T[] {
+  if (Array.isArray(response)) {
+    return response;
+  }
+  if (response?.results && Array.isArray(response.results)) {
+    return response.results;
+  }
+  return [];
+}
+
 export async function fetchOrders(): Promise<OrderSummary[]> {
   try {
     // Fetch all order types: regular orders, design orders, and print orders
     const [regularOrders, designOrders, printOrders] = await Promise.allSettled([
-      apiFetch<BackendOrderListResponse[]>("/orders/orders/").catch(() => []),
-      apiFetch<any[]>("/orders/design-orders/").catch(() => []),
-      apiFetch<any[]>("/orders/print-orders/").catch(() => []),
+      apiFetch<any>("/orders/orders/").catch(() => []),
+      apiFetch<any>("/orders/design-orders/").catch(() => []),
+      apiFetch<any>("/orders/print-orders/").catch(() => []),
     ]);
 
     const allOrders: OrderSummary[] = [];
 
     // Process regular orders
-    if (regularOrders.status === "fulfilled" && Array.isArray(regularOrders.value)) {
-      allOrders.push(...regularOrders.value.map(mapBackendOrderToListSummary));
+    if (regularOrders.status === "fulfilled") {
+      const ordersArray = extractArrayFromResponse<BackendOrderListResponse>(regularOrders.value);
+      allOrders.push(...ordersArray.map(mapBackendOrderToListSummary));
     }
 
     // Process design orders
-    if (designOrders.status === "fulfilled" && Array.isArray(designOrders.value)) {
-      allOrders.push(...designOrders.value.map(mapDesignOrderToListSummary));
+    if (designOrders.status === "fulfilled") {
+      const ordersArray = extractArrayFromResponse<any>(designOrders.value);
+      allOrders.push(...ordersArray.map(mapDesignOrderToListSummary));
     }
 
     // Process print orders
-    if (printOrders.status === "fulfilled" && Array.isArray(printOrders.value)) {
-      allOrders.push(...printOrders.value.map(mapPrintOrderToListSummary));
+    if (printOrders.status === "fulfilled") {
+      const ordersArray = extractArrayFromResponse<any>(printOrders.value);
+      allOrders.push(...ordersArray.map(mapPrintOrderToListSummary));
     }
 
     if (allOrders.length > 0) {
@@ -318,7 +335,8 @@ export async function fetchOrderDetail(orderCode: string): Promise<OrderDetail |
   try {
     // Try regular orders first
     try {
-      const orders = await apiFetch<BackendOrderDetailResponse[]>("/orders/orders/");
+      const ordersResponse = await apiFetch<any>("/orders/orders/");
+      const orders = extractArrayFromResponse<BackendOrderDetailResponse>(ordersResponse);
       const order = orders.find((o) => o.order_code === orderCode);
       if (order) {
         const detail = await apiFetch<BackendOrderDetailResponse>(`/orders/orders/${order.id}/`);
@@ -330,7 +348,8 @@ export async function fetchOrderDetail(orderCode: string): Promise<OrderDetail |
 
     // Try design orders
     try {
-      const designOrders = await apiFetch<any[]>("/orders/design-orders/");
+      const designOrdersResponse = await apiFetch<any>("/orders/design-orders/");
+      const designOrders = extractArrayFromResponse<any>(designOrdersResponse);
       const designOrder = designOrders.find((o) => o.order_code === orderCode);
       if (designOrder) {
         const detail = await apiFetch<any>(`/orders/design-orders/${designOrder.id}/`);
@@ -342,7 +361,8 @@ export async function fetchOrderDetail(orderCode: string): Promise<OrderDetail |
 
     // Try print orders
     try {
-      const printOrders = await apiFetch<any[]>("/orders/print-orders/");
+      const printOrdersResponse = await apiFetch<any>("/orders/print-orders/");
+      const printOrders = extractArrayFromResponse<any>(printOrdersResponse);
       const printOrder = printOrders.find((o) => o.order_code === orderCode);
       if (printOrder) {
         const detail = await apiFetch<any>(`/orders/print-orders/${printOrder.id}/`);
@@ -357,19 +377,144 @@ export async function fetchOrderDetail(orderCode: string): Promise<OrderDetail |
   return mockOrders.find((order) => order.orderCode === orderCode);
 }
 
+// Update order status functions
+export async function updateOrderStatus(
+  orderCode: string,
+  status: string,
+  note?: string
+): Promise<any> {
+  // First, get the order detail to find the ID
+  const orderDetail = await fetchOrderDetail(orderCode);
+  if (!orderDetail) {
+    throw new Error(`Order ${orderCode} not found`);
+  }
+  
+  return apiFetch(`/orders/orders/${orderDetail.id}/update-status/`, {
+    method: "POST",
+    body: JSON.stringify({ status, note: note || "" }),
+  });
+}
+
+export async function updateDesignOrderStatus(
+  orderCode: string,
+  status: string,
+  note?: string
+): Promise<any> {
+  // First, get the order detail to find the ID
+  const orderDetail = await fetchOrderDetail(orderCode);
+  if (!orderDetail) {
+    throw new Error(`Design order ${orderCode} not found`);
+  }
+  
+  return apiFetch(`/orders/design-orders/${orderDetail.id}/update-status/`, {
+    method: "POST",
+    body: JSON.stringify({ status, note: note || "" }),
+  });
+}
+
+export async function updatePrintOrderStatus(
+  orderCode: string,
+  status: string,
+  note?: string
+): Promise<any> {
+  // First, get the order detail to find the ID
+  const orderDetail = await fetchOrderDetail(orderCode);
+  if (!orderDetail) {
+    throw new Error(`Print order ${orderCode} not found`);
+  }
+  
+  return apiFetch(`/orders/print-orders/${orderDetail.id}/update-status/`, {
+    method: "POST",
+    body: JSON.stringify({ status, note: note || "" }),
+  });
+}
+
+// Download order receipt
+export async function downloadOrderReceipt(orderCode: string): Promise<void> {
+  const orderDetail = await fetchOrderDetail(orderCode);
+  if (!orderDetail) {
+    throw new Error(`Order ${orderCode} not found`);
+  }
+  
+  // Determine the correct endpoint based on order type
+  let endpoint = "";
+  if (orderDetail.orderType === "design_order") {
+    endpoint = `/orders/design-orders/${orderDetail.id}/receipt/`;
+  } else if (orderDetail.orderType === "print_order") {
+    endpoint = `/orders/print-orders/${orderDetail.id}/receipt/`;
+  } else {
+    endpoint = `/orders/orders/${orderDetail.id}/receipt/`;
+  }
+  
+  // Get auth headers using the same method as apiFetch
+  const authHeaders = getAuthHeaders();
+  
+  // Convert HeadersInit to Record<string, string> for easier manipulation
+  let headers: Record<string, string> = {};
+  if (authHeaders instanceof Headers) {
+    authHeaders.forEach((value, key) => {
+      headers[key] = value;
+    });
+  } else if (Array.isArray(authHeaders)) {
+    authHeaders.forEach(([key, value]) => {
+      headers[key] = value;
+    });
+  } else {
+    headers = { ...authHeaders };
+  }
+  
+  // Add Accept header for HTML
+  headers["Accept"] = "text/html";
+  
+  // Fetch receipt as HTML
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: "GET",
+    headers: headers as HeadersInit,
+  });
+  
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("غير مصرح لك بالوصول. يرجى تسجيل الدخول مرة أخرى.");
+    }
+    throw new Error(`فشل تحميل الإيصال: ${response.statusText}`);
+  }
+  
+  // Get HTML content
+  const htmlContent = await response.text();
+  
+  // Create a blob and download
+  const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `receipt_${orderCode}.html`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+  
+  // Also open in new window for printing
+  const printWindow = window.open("", "_blank");
+  if (printWindow) {
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  }
+}
+
 function mapDesignOrderToDetail(order: any): OrderDetail {
   return {
     id: order.id,
     orderCode: order.order_code,
+    orderType: "design_order",
     service: {
       id: `design-${order.design_type}`,
-      name: `خدمة التصميم - ${order.title}`,
+      name: `خدمة التصميم - ${order.title || order.design_type}`,
       slug: `design-${order.design_type}`,
       icon: "🎨",
     },
     requester: {
-      name: order.requester.full_name,
-      department: order.requester.department || order.entity?.name,
+      name: order.requester?.full_name || "غير معروف",
+      department: order.requester?.department || order.entity?.name || "",
     },
     quantity: undefined,
     status: order.status as OrderStatus,
@@ -384,13 +529,19 @@ function mapDesignOrderToDetail(order: any): OrderDetail {
     ],
     attachments: (order.attachments || []).map((att: any) => ({
       id: att.id,
-      type: att.attachment_type,
+      type: att.attachment_type || "file",
       name: att.name,
       url: att.file || att.link_url || "#",
       sizeKb: att.size_bytes ? Math.round(att.size_bytes / 1024) : undefined,
     })),
     approvals: [],
-    statusHistory: [],
+    statusHistory: (order.status_history || []).map((entry: any) => ({
+      id: entry.id,
+      status: entry.status as OrderStatus,
+      note: entry.note,
+      updatedBy: entry.changed_by?.full_name || "النظام",
+      updatedAt: entry.changed_at,
+    })),
   };
 }
 
@@ -398,6 +549,7 @@ function mapPrintOrderToDetail(order: any): OrderDetail {
   return {
     id: order.id,
     orderCode: order.order_code,
+    orderType: "print_order",
     service: {
       id: `print-${order.print_type}`,
       name: `خدمة الطباعة - ${order.print_type}`,
@@ -405,8 +557,8 @@ function mapPrintOrderToDetail(order: any): OrderDetail {
       icon: "🖨️",
     },
     requester: {
-      name: order.requester.full_name,
-      department: order.requester.department || order.entity?.name,
+      name: order.requester?.full_name || "غير معروف",
+      department: order.requester?.department || order.entity?.name || "",
     },
     quantity: order.quantity,
     status: order.status as OrderStatus,
@@ -421,13 +573,19 @@ function mapPrintOrderToDetail(order: any): OrderDetail {
     ],
     attachments: (order.attachments || []).map((att: any) => ({
       id: att.id,
-      type: att.attachment_type,
+      type: att.attachment_type || "file",
       name: att.name,
       url: att.file || att.link_url || "#",
       sizeKb: att.size_bytes ? Math.round(att.size_bytes / 1024) : undefined,
     })),
     approvals: [],
-    statusHistory: [],
+    statusHistory: (order.status_history || []).map((entry: any) => ({
+      id: entry.id,
+      status: entry.status as OrderStatus,
+      note: entry.note,
+      updatedBy: entry.changed_by?.full_name || "النظام",
+      updatedAt: entry.changed_at,
+    })),
   };
 }
 
@@ -550,6 +708,7 @@ function mapBackendOrderToDetail(order: BackendOrderDetailResponse): OrderDetail
   return {
     id: order.id,
     orderCode: order.order_code,
+    orderType: "order",
     service: {
       id: order.service.id,
       name: order.service.name,
@@ -557,22 +716,22 @@ function mapBackendOrderToDetail(order: BackendOrderDetailResponse): OrderDetail
       icon: order.service.icon,
     },
     requester: {
-      name: order.requester.full_name,
-      department: order.requester.department || order.department,
+      name: order.requester?.full_name || "غير معروف",
+      department: order.requester?.department || order.department || "",
     },
     quantity,
     status: order.status as OrderStatus,
     priority: order.priority as "low" | "medium" | "high",
     submittedAt: order.submitted_at,
     requiresApproval: order.requires_approval,
-    fieldValues: order.field_values.map((fv) => ({
+    fieldValues: (order.field_values || []).map((fv) => ({
       id: fv.id,
       fieldId: fv.field,
       label: fv.field_label,
       key: fv.field_key,
       value: fv.value,
     })),
-    attachments: order.attachments.map((att) => {
+    attachments: (order.attachments || []).map((att) => {
       // Construct full URL for file attachments
       let url = att.link_url || "#";
       if (att.file) {
@@ -587,26 +746,26 @@ function mapBackendOrderToDetail(order: BackendOrderDetailResponse): OrderDetail
       }
       return {
         id: att.id,
-        type: att.attachment_type,
+        type: att.attachment_type || "file",
         name: att.name,
         url,
         sizeKb: att.size_bytes ? Math.round(att.size_bytes / 1024) : undefined,
       };
     }),
-    approvals: order.approvals.map((app) => ({
+    approvals: (order.approvals || []).map((app) => ({
       id: app.id,
-      approver: app.approver.full_name,
+      approver: app.approver?.full_name,
       step: app.step,
       decision: app.decision,
       comment: app.comment,
       decidedAt: app.decided_at,
     })),
-    statusHistory: order.status_history.map((hist) => ({
-      id: hist.id,
-      status: hist.status as OrderStatus,
-      note: hist.note,
-      updatedBy: hist.changed_by.full_name,
-      updatedAt: hist.changed_at,
+    statusHistory: (order.status_history || []).map((entry) => ({
+      id: entry.id,
+      status: entry.status as OrderStatus,
+      note: entry.note,
+      updatedBy: entry.changed_by?.full_name || "النظام",
+      updatedAt: entry.changed_at,
     })),
   };
 }
@@ -662,11 +821,29 @@ export async function fetchEntities(isActiveOnly: boolean = true): Promise<Entit
 }
 
 export async function fetchEntityTree() {
-  return apiFetch("/entities/entities/tree/");
+  try {
+    const response = await apiFetch<any>("/entities/entities/tree/");
+    // Handle paginated response
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response?.results && Array.isArray(response.results)) {
+      return response.results;
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching entity tree:", error);
+    return [];
+  }
 }
 
 export async function fetchEntityDetail(id: string) {
-  return apiFetch(`/entities/entities/${id}/`);
+  try {
+    return await apiFetch(`/entities/entities/${id}/`);
+  } catch (error) {
+    console.error("Error fetching entity detail:", error);
+    throw error;
+  }
 }
 
 export async function createEntity(data: {
@@ -707,21 +884,7 @@ export async function deleteEntity(id: string) {
 }
 
 // Users API
-export interface User {
-  id: string;
-  email: string;
-  full_name: string;
-  department?: string;
-  entity?: {
-    id: string;
-    name: string;
-  };
-  phone_number?: string;
-  role: string;
-  is_active: boolean;
-  date_joined?: string;
-  last_login?: string;
-}
+// User interface is imported from ./types to avoid duplication
 
 export async function fetchUsers(): Promise<User[]> {
   try {
@@ -984,7 +1147,22 @@ export interface InventoryItem {
 }
 
 export async function fetchInventoryItems(): Promise<InventoryItem[]> {
-  return apiFetch<InventoryItem[]>("/inventory/items/");
+  try {
+    const response = await apiFetch<any>("/inventory/items/");
+    // Handle paginated response (DRF format)
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response?.results && Array.isArray(response.results)) {
+      // DRF pagination format: { count, next, previous, results: [...] }
+      return response.results;
+    }
+    console.warn("Unexpected inventory items response format:", response);
+    return [];
+  } catch (error) {
+    console.error("Error fetching inventory items:", error);
+    return [];
+  }
 }
 
 export async function fetchInventoryItem(id: string): Promise<InventoryItem> {
@@ -1021,6 +1199,82 @@ export async function adjustInventoryItem(
   return apiFetch<any>(`/inventory/items/${id}/adjust/`, {
     method: "POST",
     body: JSON.stringify(data),
+  });
+}
+
+// Inventory Logs API
+export interface InventoryLog {
+  id: string;
+  item: {
+    id: string;
+    name: string;
+    sku: string;
+  };
+  operation: "in" | "out" | "adjust";
+  quantity: number;
+  balance_after: number;
+  performed_by: {
+    id: string;
+    full_name: string;
+  };
+  note?: string;
+  reference_order?: string;
+  created_at: string;
+}
+
+export async function fetchInventoryLogs(): Promise<InventoryLog[]> {
+  try {
+    const response = await apiFetch<any>("/inventory/logs/");
+    return extractArrayFromResponse<InventoryLog>(response);
+  } catch (error) {
+    console.error("Error fetching inventory logs:", error);
+    return [];
+  }
+}
+
+// Reorder Requests API
+export interface ReorderRequest {
+  id: string;
+  item: {
+    id: string;
+    name: string;
+    sku: string;
+  };
+  quantity: number;
+  status: "pending" | "ordered" | "received" | "cancelled";
+  requested_by: {
+    id: string;
+    full_name: string;
+  };
+  requested_at: string;
+  approved_by?: {
+    id: string;
+    full_name: string;
+  };
+  approved_at?: string;
+  received_at?: string;
+  notes?: string;
+}
+
+export async function fetchReorderRequests(): Promise<ReorderRequest[]> {
+  try {
+    const response = await apiFetch<any>("/inventory/reorders/");
+    return extractArrayFromResponse<ReorderRequest>(response);
+  } catch (error) {
+    console.error("Error fetching reorder requests:", error);
+    return [];
+  }
+}
+
+export async function approveReorderRequest(id: string): Promise<ReorderRequest> {
+  return apiFetch<ReorderRequest>(`/inventory/reorders/${id}/approve/`, {
+    method: "POST",
+  });
+}
+
+export async function markReorderRequestReceived(id: string): Promise<ReorderRequest> {
+  return apiFetch<ReorderRequest>(`/inventory/reorders/${id}/mark_received/`, {
+    method: "POST",
   });
 }
 
@@ -1064,6 +1318,13 @@ export interface ServiceFieldOption {
 
 export async function fetchService(id: string): Promise<Service> {
   return apiFetch<Service>(`/catalog/services/${id}/`);
+}
+
+export async function updateServiceApproval(serviceId: string, requiresApproval: boolean): Promise<Service> {
+  return apiFetch<Service>(`/catalog/services/${serviceId}/update_approval/`, {
+    method: "PATCH",
+    body: JSON.stringify({ requires_approval: requiresApproval }),
+  });
 }
 
 export async function createService(data: Partial<Service>): Promise<Service> {
@@ -1145,6 +1406,7 @@ export async function deleteServiceField(id: string): Promise<void> {
 export interface ServicePricing {
   id: string;
   service: string;
+  service_name?: string;
   internal_cost: number;
   external_cost: number;
   notes?: string;
@@ -1154,8 +1416,21 @@ export interface ServicePricing {
 }
 
 export async function fetchServicePricing(serviceId?: string): Promise<ServicePricing[]> {
-  const url = serviceId ? `/catalog/service-pricing/?service=${serviceId}` : "/catalog/service-pricing/";
-  return apiFetch<ServicePricing[]>(url);
+  try {
+    const url = serviceId ? `/catalog/service-pricing/?service=${serviceId}` : "/catalog/service-pricing/";
+    const response = await apiFetch<any>(url);
+    // Handle paginated response
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response?.results && Array.isArray(response.results)) {
+      return response.results;
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching service pricing:", error);
+    return [];
+  }
 }
 
 export async function fetchServicePricingDetail(id: string): Promise<ServicePricing> {
@@ -1375,34 +1650,47 @@ export interface DashboardStats {
 }
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
-  // Fetch from multiple endpoints and aggregate
-  const [orders, inventory] = await Promise.all([
-    fetchOrders().catch(() => []),
-    fetchInventoryItems().catch(() => []),
-  ]);
-  
-  const activeOrders = orders.filter((o: any) => 
-    o.status !== "completed" && o.status !== "rejected"
-  ).length;
-  
-  const pendingApprovals = orders.filter((o: any) => 
-    o.status === "pending" || o.status === "in_review"
-  ).length;
-  
-  const inventoryAlerts = inventory.filter((item: InventoryItem) => 
-    item.status === "critical" || item.status === "warning"
-  ).length;
-  
-  return {
-    active_orders: activeOrders,
-    pending_approvals: pendingApprovals,
-    inventory_alerts: inventoryAlerts,
-    savings_percentage: 27, // TODO: Calculate from pricing data
-  };
+  try {
+    // Try to fetch from admin overview API first
+    const adminStats = await apiFetch<DashboardStats>("/admin/overview/stats/");
+    return adminStats;
+  } catch (error) {
+    // Fallback to client-side calculation if API fails
+    console.warn("Admin overview API not available, using fallback calculation");
+    const [orders, inventory] = await Promise.all([
+      fetchOrders().catch(() => []),
+      fetchInventoryItems().catch(() => []),
+    ]);
+    
+    // Ensure orders is an array
+    const ordersArray = Array.isArray(orders) ? orders : [];
+    
+    // Ensure inventory is an array
+    const inventoryArray = Array.isArray(inventory) ? inventory : [];
+    
+    const activeOrders = ordersArray.filter((o: any) => 
+      o.status !== "completed" && o.status !== "rejected" && o.status !== "archived"
+    ).length;
+    
+    const pendingApprovals = ordersArray.filter((o: any) => 
+      o.status === "pending" || o.status === "in_review"
+    ).length;
+    
+    const inventoryAlerts = inventoryArray.filter((item: InventoryItem) => 
+      item.current_quantity <= (item.min_quantity || 0)
+    ).length;
+    
+    return {
+      active_orders: activeOrders,
+      pending_approvals: pendingApprovals,
+      inventory_alerts: inventoryAlerts,
+      savings_percentage: 0, // Will be calculated by backend
+    };
+  }
 }
 
 // Reports API
-export async function fetchReports(params?: {
+export async function fetchOrdersReport(params?: {
   entity?: string;
   college?: string;
   vice_rectorate?: string;
@@ -1437,13 +1725,42 @@ export async function fetchROIReport(): Promise<any> {
 export interface AuditLog {
   id: string;
   action: string;
-  actor: string;
+  actor: string | null;
+  actor_name?: string;
+  actor_email?: string;
   severity: "info" | "success" | "warning" | "danger";
+  metadata?: any;
   created_at: string;
 }
 
-export async function fetchAuditLogs(): Promise<AuditLog[]> {
-  return apiFetch<AuditLog[]>("/system/audit-log/");
+export async function fetchAuditLogs(params?: {
+  search?: string;
+  actor?: string;
+  start_date?: string;
+  end_date?: string;
+  severity?: "info" | "success" | "warning" | "danger";
+}): Promise<AuditLog[]> {
+  try {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value) queryParams.append(key, value);
+      });
+    }
+    const url = `/system/audit-log/${queryParams.toString() ? `?${queryParams}` : ""}`;
+    const response = await apiFetch<any>(url);
+    // Handle paginated response
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response?.results && Array.isArray(response.results)) {
+      return response.results;
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching audit logs:", error);
+    return [];
+  }
 }
 
 // Approval Policy API
@@ -1453,11 +1770,22 @@ export interface ApprovalPolicy {
 }
 
 export async function fetchApprovalPolicy(): Promise<ApprovalPolicy> {
-  return apiFetch<ApprovalPolicy>("/system/approval-policy/");
+  try {
+    // Try the new endpoint first
+    return await apiFetch<ApprovalPolicy>("/system/approval-policy/current/");
+  } catch (error) {
+    // Fallback: try to get by ID (if we have one)
+    console.warn("Failed to fetch approval policy from current endpoint:", error);
+    // Return default policy
+    return {
+      mode: "selective",
+      selective_services: [],
+    };
+  }
 }
 
 export async function updateApprovalPolicy(data: Partial<ApprovalPolicy>): Promise<ApprovalPolicy> {
-  return apiFetch<ApprovalPolicy>("/system/approval-policy/", {
+  return apiFetch<ApprovalPolicy>("/system/approval-policy/current/", {
     method: "PATCH",
     body: JSON.stringify(data),
   });

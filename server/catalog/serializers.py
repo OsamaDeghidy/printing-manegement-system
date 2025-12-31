@@ -36,16 +36,27 @@ class ServiceFieldSerializer(serializers.ModelSerializer):
 
 
 class ServicePricingSerializer(serializers.ModelSerializer):
+    service = serializers.PrimaryKeyRelatedField(
+        queryset=Service.objects.all(),
+        write_only=True,
+        required=True
+    )
+    service_name = serializers.CharField(source="service.name", read_only=True)
+    
     class Meta:
         model = ServicePricing
         fields = [
             "id",
+            "service",
+            "service_name",
             "internal_cost",
             "external_cost",
             "notes",
             "effective_from",
             "effective_to",
+            "created_at",
         ]
+        read_only_fields = ["id", "created_at"]
 
 
 class ServiceSerializer(serializers.ModelSerializer):

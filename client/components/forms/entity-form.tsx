@@ -53,36 +53,76 @@ export function EntityForm({
 }: EntityFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<EntityFormValues>({
-    name: initialValues?.name ?? "",
-    code: initialValues?.code ?? "",
-    level: initialValues?.level ?? "department_unit",
-    parent: initialValues?.parent ?? null,
+    name: initialValues?.name || "",
+    code: initialValues?.code || "",
+    level: initialValues?.level || "department_unit",
+    parent: initialValues?.parent || null,
     is_active: initialValues?.is_active ?? true,
-    description: initialValues?.description ?? "",
+    description: initialValues?.description || "",
   });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setForm((prev) => ({
-      ...prev,
-      name: initialValues?.name ?? "",
-      code: initialValues?.code ?? "",
-      level: initialValues?.level ?? "department_unit",
-      parent: initialValues?.parent ?? null,
-      is_active: initialValues?.is_active ?? true,
-      description: initialValues?.description ?? "",
-    }));
+    if (initialValues) {
+      setForm((prev) => ({
+        ...prev,
+        name: initialValues.name || "",
+        code: initialValues.code || "",
+        level: initialValues.level || "department_unit",
+        parent: initialValues.parent || null,
+        is_active: initialValues.is_active ?? true,
+        description: initialValues.description || "",
+      }));
+    }
   }, [initialValues]);
 
   const parentChoices = useMemo(() => {
-    return parentOptions.filter((p) => p.id !== entityId);
-  }, [parentOptions, entityId]);
+    // Filter parent options based on selected level
+    let filtered = parentOptions.filter((p) => p.id !== entityId);
+    
+    // If level is vice_rectorate, no parent allowed
+    if (form.level === "vice_rectorate") {
+      return [];
+    }
+    
+    // If level is college_deanship, only vice_rectorate can be parent
+    if (form.level === "college_deanship") {
+      filtered = filtered.filter((p) => p.level === "vice_rectorate");
+    }
+    
+    // If level is department_unit, only college_deanship can be parent
+    if (form.level === "department_unit") {
+      filtered = filtered.filter((p) => p.level === "college_deanship");
+    }
+    
+    return filtered;
+  }, [parentOptions, entityId, form.level]);
 
   const handleChange = (
     key: keyof EntityFormValues,
     value: EntityFormValues[keyof EntityFormValues]
   ) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+    setForm((prev) => {
+      const updated = { ...prev, [key]: value };
+      // When level changes, reset parent if it's not valid for the new level
+      if (key === "level") {
+        const newLevel = value as EntityLevel;
+        if (newLevel === "vice_rectorate") {
+          updated.parent = null;
+        } else if (newLevel === "college_deanship" && prev.parent) {
+          const parentEntity = parentOptions.find((p) => p.id === prev.parent);
+          if (parentEntity?.level !== "vice_rectorate") {
+            updated.parent = null;
+          }
+        } else if (newLevel === "department_unit" && prev.parent) {
+          const parentEntity = parentOptions.find((p) => p.id === prev.parent);
+          if (parentEntity?.level !== "college_deanship") {
+            updated.parent = null;
+          }
+        }
+      }
+      return updated;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,6 +143,40 @@ export function EntityForm({
         setError("الاسم مطلوب");
         setSubmitting(false);
         return;
+      }
+
+      // Validate parent based on level
+      if (payload.level === "vice_rectorate" && payload.parent) {
+        setError("الوكالة/القطاع لا يمكن أن يكون له جهة أم");
+        setSubmitting(false);
+        return;
+      }
+
+      if (payload.level === "college_deanship" && !payload.parent) {
+        setError("يجب تحديد الجهة الأم (وكالة/قطاع) للكلية/العمادة");
+        setSubmitting(false);
+        return;
+      }
+
+      if (payload.level === "department_unit" && !payload.parent) {
+        setError("يجب تحديد الجهة الأم (كلية/عمادة) للقسم/الوحدة");
+        setSubmitting(false);
+        return;
+      }
+
+      // Validate parent level matches
+      if (payload.parent) {
+        const parentEntity = parentOptions.find((p) => p.id === payload.parent);
+        if (payload.level === "college_deanship" && parentEntity?.level !== "vice_rectorate") {
+          setError("الكلية/العمادة يجب أن تكون تابعة لوكالة/قطاع");
+          setSubmitting(false);
+          return;
+        }
+        if (payload.level === "department_unit" && parentEntity?.level !== "college_deanship") {
+          setError("القسم/الوحدة يجب أن يكون تابعاً لكلية/عمادة");
+          setSubmitting(false);
+          return;
+        }
       }
 
       if (mode === "create") {
@@ -138,7 +212,7 @@ export function EntityForm({
             الرمز (اختياري)
           </label>
           <Input
-            value={form.code}
+            value={form.code || ""}
             onChange={(e) => handleChange("code", e.target.value)}
             placeholder="مثال: PR-001"
           />
@@ -148,7 +222,7 @@ export function EntityForm({
             المستوى
           </label>
           <Select
-            value={form.level}
+            value={form.level || "department_unit"}
             onChange={(e) => handleChange("level", e.target.value as EntityLevel)}
             options={levelOptions.map((opt) => ({
               value: opt.value,
@@ -159,20 +233,39 @@ export function EntityForm({
         <div>
           <label className="mb-2 block text-sm font-semibold text-heading">
             الجهة الأم
+            {form.level !== "vice_rectorate" && (
+              <span className="text-destructive"> *</span>
+            )}
           </label>
           <Select
             value={form.parent ?? ""}
             onChange={(e) =>
               handleChange("parent", e.target.value === "" ? null : (e.target.value as string))
             }
-            options={[
-              { value: "", label: "بدون (وكالة/قطاع فقط)" },
-              ...parentChoices.map((p) => ({
-                value: p.id,
-                label: `${p.name} (${levelLabel(p.level)})`,
-              })),
-            ]}
+            required={form.level !== "vice_rectorate"}
+            disabled={form.level === "vice_rectorate"}
+            options={
+              form.level === "vice_rectorate"
+                ? [{ value: "", label: "بدون (وكالة/قطاع لا يحتاج جهة أم)" }]
+                : [
+                    { value: "", label: "اختر الجهة الأم..." },
+                    ...parentChoices.map((p) => ({
+                      value: p.id,
+                      label: `${p.name} (${levelLabel(p.level)})`,
+                    })),
+                  ]
+            }
           />
+          {form.level === "college_deanship" && (
+            <p className="mt-1 text-xs text-muted">
+              يجب اختيار وكالة/قطاع كجهة أم
+            </p>
+          )}
+          {form.level === "department_unit" && (
+            <p className="mt-1 text-xs text-muted">
+              يجب اختيار كلية/عمادة كجهة أم
+            </p>
+          )}
         </div>
       </div>
 
@@ -183,7 +276,7 @@ export function EntityForm({
           </label>
           <TextArea
             rows={4}
-            value={form.description}
+            value={form.description || ""}
             onChange={(e) => handleChange("description", e.target.value)}
             placeholder="وصف مختصر للجهة"
           />

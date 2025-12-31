@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import {
   fetchReorderRequests,
@@ -21,6 +22,8 @@ function AdminReorderRequestsPageContent() {
   const [requests, setRequests] = useState<ReorderRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
+  const [showApproveModal, setShowApproveModal] = useState<string | null>(null);
+  const [showReceiveModal, setShowReceiveModal] = useState<string | null>(null);
 
   useEffect(() => {
     loadRequests();
@@ -38,12 +41,13 @@ function AdminReorderRequestsPageContent() {
     }
   };
 
-  const handleApprove = async (id: string) => {
-    if (!confirm("هل أنت متأكد من الموافقة على طلب التزويد؟")) return;
+  const handleApprove = async () => {
+    if (!showApproveModal) return;
     try {
-      setProcessing(id);
-      await approveReorderRequest(id);
+      setProcessing(showApproveModal);
+      await approveReorderRequest(showApproveModal);
       await loadRequests();
+      setShowApproveModal(null);
       alert("تمت الموافقة بنجاح");
     } catch (error: any) {
       alert(error.message || "فشلت الموافقة");
@@ -52,12 +56,13 @@ function AdminReorderRequestsPageContent() {
     }
   };
 
-  const handleMarkReceived = async (id: string) => {
-    if (!confirm("هل تم استلام المواد بالفعل؟")) return;
+  const handleMarkReceived = async () => {
+    if (!showReceiveModal) return;
     try {
-      setProcessing(id);
-      await markReorderRequestReceived(id);
+      setProcessing(showReceiveModal);
+      await markReorderRequestReceived(showReceiveModal);
       await loadRequests();
+      setShowReceiveModal(null);
       alert("تم تحديث الحالة بنجاح");
     } catch (error: any) {
       alert(error.message || "فشل التحديث");
@@ -169,7 +174,7 @@ function AdminReorderRequestsPageContent() {
                       variant="primary"
                       size="sm"
                       fullWidth
-                      onClick={() => handleApprove(request.id)}
+                      onClick={() => setShowApproveModal(request.id)}
                       disabled={processing === request.id}
                     >
                       {processing === request.id ? "جاري..." : "الموافقة"}
@@ -180,7 +185,7 @@ function AdminReorderRequestsPageContent() {
                       variant="success"
                       size="sm"
                       fullWidth
-                      onClick={() => handleMarkReceived(request.id)}
+                      onClick={() => setShowReceiveModal(request.id)}
                       disabled={processing === request.id}
                     >
                       {processing === request.id ? "جاري..." : "تم الاستلام"}
@@ -191,6 +196,68 @@ function AdminReorderRequestsPageContent() {
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Approve Confirmation Modal */}
+      {showApproveModal && (
+        <Modal
+          isOpen={!!showApproveModal}
+          onClose={() => setShowApproveModal(null)}
+          title="تأكيد الموافقة"
+        >
+          <div className="space-y-4">
+            <p>هل أنت متأكد من الموافقة على طلب التزويد هذا؟</p>
+            <div className="flex gap-2">
+              <Button
+                variant="primary"
+                onClick={handleApprove}
+                disabled={processing === showApproveModal}
+                fullWidth
+              >
+                {processing === showApproveModal ? "جاري..." : "نعم، موافق"}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setShowApproveModal(null)}
+                disabled={processing === showApproveModal}
+                fullWidth
+              >
+                إلغاء
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Receive Confirmation Modal */}
+      {showReceiveModal && (
+        <Modal
+          isOpen={!!showReceiveModal}
+          onClose={() => setShowReceiveModal(null)}
+          title="تأكيد الاستلام"
+        >
+          <div className="space-y-4">
+            <p>هل تم استلام المواد بالفعل؟</p>
+            <div className="flex gap-2">
+              <Button
+                variant="success"
+                onClick={handleMarkReceived}
+                disabled={processing === showReceiveModal}
+                fullWidth
+              >
+                {processing === showReceiveModal ? "جاري..." : "نعم، تم الاستلام"}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setShowReceiveModal(null)}
+                disabled={processing === showReceiveModal}
+                fullWidth
+              >
+                إلغاء
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );
@@ -203,6 +270,10 @@ export default function AdminReorderRequestsPage() {
     </ProtectedRoute>
   );
 }
+
+
+
+
 
 
 

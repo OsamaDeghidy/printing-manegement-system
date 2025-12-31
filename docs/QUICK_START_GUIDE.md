@@ -243,7 +243,7 @@ print(response.json())
 POST http://localhost:8000/api/auth/token/
 Body (JSON):
 {
-  "email": "consumer@taibahu.edu.sa",
+  "email": "consumer1@taibahu.edu.sa",
   "password": "PrintCenter@2025"
 }
 ```

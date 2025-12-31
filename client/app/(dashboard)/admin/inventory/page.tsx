@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { useAuth } from "@/lib/auth-context";
 import { InventoryForm } from "@/components/forms/inventory-form";
 import { InventoryAdjustForm } from "@/components/forms/inventory-adjust-form";
 import {
@@ -19,11 +20,16 @@ import {
 } from "@/lib/api-client";
 
 function AdminInventoryPageContent() {
+  const { hasRole } = useAuth();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [adjustingItem, setAdjustingItem] = useState<InventoryItem | null>(null);
+  
+  // Check permissions
+  const canManage = hasRole("admin") || hasRole("inventory");
+  const canAdjust = hasRole("admin") || hasRole("inventory") || hasRole("print_manager");
 
   useEffect(() => {
     loadItems();
@@ -33,9 +39,17 @@ function AdminInventoryPageContent() {
     try {
       setLoading(true);
       const data = await fetchInventoryItems();
-      setItems(Array.isArray(data) ? data : []);
+      // Handle paginated response
+      if (Array.isArray(data)) {
+        setItems(data);
+      } else if (data?.results && Array.isArray(data.results)) {
+        setItems(data.results);
+      } else {
+        setItems([]);
+      }
     } catch (error) {
       console.error("Error loading inventory items:", error);
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -102,7 +116,9 @@ function AdminInventoryPageContent() {
             تتبع المواد، حدّد الحدود الدنيا، واطلب التوريدات الجديدة بسهولة.
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>+ إضافة مادة جديدة</Button>
+        {canManage && (
+          <Button onClick={() => setShowForm(true)}>+ إضافة مادة جديدة</Button>
+        )}
       </header>
 
       {lowStockItems.length > 0 && (
@@ -155,30 +171,36 @@ function AdminInventoryPageContent() {
                   <p>آخر استهلاك: {new Date(item.last_usage_at).toLocaleDateString("ar-SA")}</p>
                 )}
                 <div className="flex gap-2">
-                  <Button
-                    variant="secondary"
-                    fullWidth
-                    size="sm"
-                    onClick={() => setAdjustingItem(item)}
-                  >
-                    تحديث الكمية
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    fullWidth
-                    size="sm"
-                    onClick={() => setEditingItem(item.id)}
-                  >
-                    تعديل
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    fullWidth
-                    size="sm"
-                    onClick={() => handleDelete(item.id)}
-                  >
-                    حذف
-                  </Button>
+                  {canAdjust && (
+                    <Button
+                      variant="secondary"
+                      fullWidth
+                      size="sm"
+                      onClick={() => setAdjustingItem(item)}
+                    >
+                      تحديث الكمية
+                    </Button>
+                  )}
+                  {canManage && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        fullWidth
+                        size="sm"
+                        onClick={() => setEditingItem(item.id)}
+                      >
+                        تعديل
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        fullWidth
+                        size="sm"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        حذف
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>

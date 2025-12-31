@@ -221,6 +221,158 @@ class OrderViewSet(viewsets.ModelViewSet):
         
         return Response(OrderDetailSerializer(order).data)
 
+    @action(
+        detail=True,
+        methods=["get"],
+        permission_classes=[IsAuthenticated],
+        url_path="receipt",
+    )
+    def receipt(self, request, pk=None):
+        """تحميل إيصال الطلب"""
+        from django.http import HttpResponse
+        from django.template.loader import render_to_string
+        from django.utils import timezone
+        
+        order = self.get_object()
+        
+        # Generate receipt HTML
+        context = {
+            "order": order,
+            "order_code": order.order_code,
+            "service_name": order.service.name,
+            "requester_name": order.requester.full_name,
+            "requester_department": order.requester.department or (order.entity.name if order.entity else ""),
+            "status": order.get_status_display(),
+            "priority": order.get_priority_display(),
+            "submitted_at": order.submitted_at,
+            "field_values": order.field_values.all(),
+            "attachments": order.attachments.all(),
+            "current_date": timezone.now(),
+        }
+        
+        # Simple HTML receipt
+        html_content = f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>إيصال الطلب - {order.order_code}</title>
+            <style>
+                body {{
+                    font-family: 'Arial', 'Tahoma', sans-serif;
+                    direction: rtl;
+                    margin: 20px;
+                    padding: 20px;
+                    background: #fff;
+                }}
+                .header {{
+                    text-align: center;
+                    border-bottom: 2px solid #333;
+                    padding-bottom: 20px;
+                    margin-bottom: 30px;
+                }}
+                .header h1 {{
+                    color: #1a1a1a;
+                    margin: 0;
+                }}
+                .order-info {{
+                    margin: 20px 0;
+                }}
+                .order-info table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }}
+                .order-info th, .order-info td {{
+                    padding: 10px;
+                    text-align: right;
+                    border: 1px solid #ddd;
+                }}
+                .order-info th {{
+                    background-color: #f5f5f5;
+                    font-weight: bold;
+                }}
+                .field-values {{
+                    margin: 20px 0;
+                }}
+                .footer {{
+                    margin-top: 40px;
+                    padding-top: 20px;
+                    border-top: 2px solid #333;
+                    text-align: center;
+                    color: #666;
+                }}
+                @media print {{
+                    body {{
+                        margin: 0;
+                        padding: 10px;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>إيصال طلب</h1>
+                <p>نظام إدارة المطبعة</p>
+            </div>
+            
+            <div class="order-info">
+                <table>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <td>{order.order_code}</td>
+                    </tr>
+                    <tr>
+                        <th>الخدمة</th>
+                        <td>{order.service.name}</td>
+                    </tr>
+                    <tr>
+                        <th>مقدم الطلب</th>
+                        <td>{order.requester.full_name}</td>
+                    </tr>
+                    <tr>
+                        <th>القسم/الجهة</th>
+                        <td>{order.requester.department or (order.entity.name if order.entity else "—")}</td>
+                    </tr>
+                    <tr>
+                        <th>الحالة</th>
+                        <td>{order.get_status_display()}</td>
+                    </tr>
+                    <tr>
+                        <th>الأولوية</th>
+                        <td>{order.get_priority_display()}</td>
+                    </tr>
+                    <tr>
+                        <th>تاريخ التقديم</th>
+                        <td>{order.submitted_at.strftime('%Y-%m-%d %H:%M') if order.submitted_at else "—"}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="field-values">
+                <h3>تفاصيل الطلب:</h3>
+                <table>
+                    <tr>
+                        <th>الحقل</th>
+                        <th>القيمة</th>
+                    </tr>
+                    {"".join([f"<tr><td>{fv.field.label if hasattr(fv.field, 'label') else fv.field_key}</td><td>{fv.value}</td></tr>" for fv in order.field_values.all()])}
+                </table>
+            </div>
+            
+            <div class="footer">
+                <p>تم إنشاء هذا الإيصال في: {timezone.now().strftime('%Y-%m-%d %H:%M')}</p>
+                <p>شكراً لاستخدامك نظام إدارة المطبعة</p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        response = HttpResponse(html_content, content_type="text/html; charset=utf-8")
+        response["Content-Disposition"] = f'inline; filename="receipt_{order.order_code}.html"'
+        return response
+
     @transaction.atomic
     @action(
         detail=True,
@@ -333,6 +485,134 @@ class DesignOrderViewSet(viewsets.ModelViewSet):
         if self.action == "create":
             return DesignOrderCreateSerializer
         return DesignOrderDetailSerializer
+    
+    @action(
+        detail=True,
+        methods=["get"],
+        permission_classes=[IsAuthenticated],
+        url_path="receipt",
+    )
+    def receipt(self, request, pk=None):
+        """تحميل إيصال طلب التصميم"""
+        from django.http import HttpResponse
+        from django.utils import timezone
+        
+        design_order = self.get_object()
+        
+        # Generate receipt HTML
+        html_content = f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>إيصال الطلب - {design_order.order_code}</title>
+            <style>
+                body {{
+                    font-family: 'Arial', 'Tahoma', sans-serif;
+                    direction: rtl;
+                    margin: 20px;
+                    padding: 20px;
+                    background: #fff;
+                }}
+                .header {{
+                    text-align: center;
+                    border-bottom: 2px solid #333;
+                    padding-bottom: 20px;
+                    margin-bottom: 30px;
+                }}
+                .header h1 {{
+                    color: #1a1a1a;
+                    margin: 0;
+                }}
+                .order-info {{
+                    margin: 20px 0;
+                }}
+                .order-info table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }}
+                .order-info th, .order-info td {{
+                    padding: 10px;
+                    text-align: right;
+                    border: 1px solid #ddd;
+                }}
+                .order-info th {{
+                    background-color: #f5f5f5;
+                    font-weight: bold;
+                }}
+                .footer {{
+                    margin-top: 40px;
+                    padding-top: 20px;
+                    border-top: 2px solid #333;
+                    text-align: center;
+                    color: #666;
+                }}
+                @media print {{
+                    body {{
+                        margin: 0;
+                        padding: 10px;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>إيصال طلب تصميم</h1>
+                <p>نظام إدارة المطبعة</p>
+            </div>
+            
+            <div class="order-info">
+                <table>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <td>{design_order.order_code}</td>
+                    </tr>
+                    <tr>
+                        <th>نوع التصميم</th>
+                        <td>{design_order.get_design_type_display()}</td>
+                    </tr>
+                    <tr>
+                        <th>العنوان</th>
+                        <td>{design_order.title}</td>
+                    </tr>
+                    <tr>
+                        <th>مقدم الطلب</th>
+                        <td>{design_order.requester.full_name}</td>
+                    </tr>
+                    <tr>
+                        <th>الجهة</th>
+                        <td>{design_order.entity.name if design_order.entity else "—"}</td>
+                    </tr>
+                    <tr>
+                        <th>الحالة</th>
+                        <td>{design_order.get_status_display()}</td>
+                    </tr>
+                    <tr>
+                        <th>الأولوية</th>
+                        <td>{design_order.get_priority_display()}</td>
+                    </tr>
+                    <tr>
+                        <th>تاريخ التقديم</th>
+                        <td>{design_order.submitted_at.strftime('%Y-%m-%d %H:%M') if design_order.submitted_at else "—"}</td>
+                    </tr>
+                    {f'<tr><th>الحجم</th><td>{design_order.get_size_display() if design_order.size else "—"}</td></tr>' if design_order.size else ''}
+                    {f'<tr><th>الوصف</th><td>{design_order.description}</td></tr>' if design_order.description else ''}
+                </table>
+            </div>
+            
+            <div class="footer">
+                <p>تم إنشاء هذا الإيصال في: {timezone.now().strftime('%Y-%m-%d %H:%M')}</p>
+                <p>شكراً لاستخدامك نظام إدارة المطبعة</p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        response = HttpResponse(html_content, content_type="text/html; charset=utf-8")
+        response["Content-Disposition"] = f'inline; filename="receipt_{design_order.order_code}.html"'
+        return response
     
     def get_queryset(self):
         user = self.request.user
@@ -542,6 +822,138 @@ class PrintOrderViewSet(viewsets.ModelViewSet):
         if self.action == "create":
             return PrintOrderCreateSerializer
         return PrintOrderDetailSerializer
+    
+    @action(
+        detail=True,
+        methods=["get"],
+        permission_classes=[IsAuthenticated],
+        url_path="receipt",
+    )
+    def receipt(self, request, pk=None):
+        """تحميل إيصال طلب الطباعة"""
+        from django.http import HttpResponse
+        from django.utils import timezone
+        
+        print_order = self.get_object()
+        
+        # Generate receipt HTML
+        html_content = f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>إيصال الطلب - {print_order.order_code}</title>
+            <style>
+                body {{
+                    font-family: 'Arial', 'Tahoma', sans-serif;
+                    direction: rtl;
+                    margin: 20px;
+                    padding: 20px;
+                    background: #fff;
+                }}
+                .header {{
+                    text-align: center;
+                    border-bottom: 2px solid #333;
+                    padding-bottom: 20px;
+                    margin-bottom: 30px;
+                }}
+                .header h1 {{
+                    color: #1a1a1a;
+                    margin: 0;
+                }}
+                .order-info {{
+                    margin: 20px 0;
+                }}
+                .order-info table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }}
+                .order-info th, .order-info td {{
+                    padding: 10px;
+                    text-align: right;
+                    border: 1px solid #ddd;
+                }}
+                .order-info th {{
+                    background-color: #f5f5f5;
+                    font-weight: bold;
+                }}
+                .footer {{
+                    margin-top: 40px;
+                    padding-top: 20px;
+                    border-top: 2px solid #333;
+                    text-align: center;
+                    color: #666;
+                }}
+                @media print {{
+                    body {{
+                        margin: 0;
+                        padding: 10px;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>إيصال طلب طباعة</h1>
+                <p>نظام إدارة المطبعة</p>
+            </div>
+            
+            <div class="order-info">
+                <table>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <td>{print_order.order_code}</td>
+                    </tr>
+                    <tr>
+                        <th>نوع الطباعة</th>
+                        <td>{print_order.get_print_type_display()}</td>
+                    </tr>
+                    <tr>
+                        <th>قسم الإنتاج</th>
+                        <td>{print_order.get_production_dept_display()}</td>
+                    </tr>
+                    <tr>
+                        <th>مقدم الطلب</th>
+                        <td>{print_order.requester.full_name}</td>
+                    </tr>
+                    <tr>
+                        <th>الجهة</th>
+                        <td>{print_order.entity.name if print_order.entity else "—"}</td>
+                    </tr>
+                    <tr>
+                        <th>الكمية</th>
+                        <td>{print_order.quantity}</td>
+                    </tr>
+                    <tr>
+                        <th>الحالة</th>
+                        <td>{print_order.get_status_display()}</td>
+                    </tr>
+                    <tr>
+                        <th>الأولوية</th>
+                        <td>{print_order.get_priority_display()}</td>
+                    </tr>
+                    <tr>
+                        <th>تاريخ التقديم</th>
+                        <td>{print_order.submitted_at.strftime('%Y-%m-%d %H:%M') if print_order.submitted_at else "—"}</td>
+                    </tr>
+                    {f'<tr><th>الحجم</th><td>{print_order.get_size_display() if print_order.size else "—"}</td></tr>' if print_order.size else ''}
+                    {f'<tr><th>نوع الورق</th><td>{print_order.get_paper_type_display() if print_order.paper_type else "—"}</td></tr>' if print_order.paper_type else ''}
+                </table>
+            </div>
+            
+            <div class="footer">
+                <p>تم إنشاء هذا الإيصال في: {timezone.now().strftime('%Y-%m-%d %H:%M')}</p>
+                <p>شكراً لاستخدامك نظام إدارة المطبعة</p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        response = HttpResponse(html_content, content_type="text/html; charset=utf-8")
+        response["Content-Disposition"] = f'inline; filename="receipt_{print_order.order_code}.html"'
+        return response
     
     def get_queryset(self):
         user = self.request.user

@@ -10,23 +10,21 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { useAuth } from "@/lib/auth-context";
 import {
-  fetchApprovalPolicy,
-  updateApprovalPolicy,
   fetchServices,
-  type ApprovalPolicy,
   type Service,
 } from "@/lib/api-client";
-import { services } from "@/data/services";
+import { ServiceApproversForm } from "@/components/forms/service-approvers-form";
 
 function AdminApprovalsPageContent() {
-  const [policy, setPolicy] = useState<ApprovalPolicy>({
-    mode: "selective",
-    selective_services: [],
-  });
+  const { hasRole } = useAuth();
   const [servicesList, setServicesList] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [editingService, setEditingService] = useState<Service | null>(null);
+  
+  // Check if user can manage approvals (admin only)
+  const canManage = hasRole("admin");
 
   useEffect(() => {
     loadData();
@@ -35,135 +33,82 @@ function AdminApprovalsPageContent() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [policyData, servicesData] = await Promise.all([
-        fetchApprovalPolicy().catch(() => policy),
-        fetchServices().catch(() => []),
-      ]);
-      setPolicy(policyData);
-      // Convert ServiceDefinition[] to Service[] if needed
+      const servicesData = await fetchServices();
+      // fetchServices always returns Service[] array
       if (Array.isArray(servicesData)) {
         setServicesList(servicesData);
       } else {
-        // Fallback: convert local services to Service format
-        const convertedServices: Service[] = services.map((s) => ({
-          id: s.id,
-          name: s.name,
-          slug: s.slug,
-          description: s.description,
-          icon: s.icon,
-          category: s.category as Service["category"],
-          is_active: true,
-          requires_approval: s.requiresApproval ?? false,
-          fields: [],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }));
-        setServicesList(convertedServices);
+        setServicesList([]);
       }
     } catch (error) {
-      console.error("Error loading approval data:", error);
+      console.error("Error loading services:", error);
+      setServicesList([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePolicyChange = async (mode: "all" | "selective" | "none") => {
-    try {
-      setSaving(true);
-      await updateApprovalPolicy({ mode });
-      setPolicy({ ...policy, mode });
-      alert("تم تحديث سياسة الاعتماد بنجاح");
-    } catch (error: any) {
-      alert(error.message || "فشل تحديث السياسة");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const approvalPolicies = [
-    {
-      id: "all",
-      name: "تفعيل شامل لجميع الخدمات",
-      description: "يتم إرسال كل طلب إلى المعتمد العام قبل التنفيذ.",
-      mode: "all" as const,
-    },
-    {
-      id: "selective",
-      name: "تفعيل انتقائي",
-      description: "يتم تحديد الخدمات التي تتطلب اعتماداً من الأسفل.",
-      mode: "selective" as const,
-    },
-    {
-      id: "none",
-      name: "إيقاف نظام الاعتماد",
-      description: "جميع الطلبات تنتقل مباشرةً إلى التنفيذ.",
-      mode: "none" as const,
-    },
-  ];
-
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-3xl font-bold text-heading">إعدادات الاعتماد المرن</h1>
+        <h1 className="text-3xl font-bold text-heading">إدارة المعتمدين</h1>
         <p className="mt-1 text-sm text-muted">
-          اختر آلية الاعتماد المناسبة وحدد المعتمدين لكل خدمة.
+          حدد الخدمات التي تتطلب اعتماداً قبل التنفيذ.
         </p>
       </header>
 
       {loading ? (
         <div className="text-center py-8">جاري التحميل...</div>
+      ) : servicesList.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted">
+            لا توجد خدمات
+          </CardContent>
+        </Card>
       ) : (
-        <>
-          <Card padding="lg" shadow="soft">
-            <CardHeader>
-              <CardTitle>خيارات نظام الاعتماد</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {approvalPolicies.map((p) => (
-                <label
-                  key={p.id}
-                  className="flex cursor-pointer flex-col gap-2 rounded-xl border border-border px-5 py-4 transition hover:border-brand-teal"
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="approval-policy"
-                      checked={policy.mode === p.mode}
-                      onChange={() => handlePolicyChange(p.mode)}
-                      disabled={saving}
-                      className="size-5 rounded-full border border-border"
-                    />
-                    <div>
-                      <p className="text-sm font-semibold text-heading">{p.name}</p>
-                      <p className="text-xs text-muted">{p.description}</p>
-                    </div>
-                  </div>
-                </label>
-              ))}
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {servicesList.map((service) => (
-              <Card key={service.id} padding="lg" shadow="soft">
-                <CardHeader className="items-start gap-3">
-                  <CardTitle className="text-lg">
-                    {service.icon || "📄"} {service.name}
-                  </CardTitle>
-                  <Badge tone={service.requires_approval ? "warning" : "success"}>
-                    {service.requires_approval ? "مفعل" : "لا يتطلب اعتماد"}
-                  </Badge>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm text-muted">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {servicesList.map((service) => (
+            <Card key={service.id} padding="lg" shadow="soft">
+              <CardHeader className="items-start gap-3">
+                <CardTitle className="text-lg">
+                  {service.icon || "📄"} {service.name}
+                </CardTitle>
+                <Badge tone={service.requires_approval ? "warning" : "success"}>
+                  {service.requires_approval ? "يتطلب اعتماد" : "لا يتطلب اعتماد"}
+                </Badge>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="space-y-1 text-muted">
                   <p>الحالة: {service.is_active ? "مفعل" : "معطل"}</p>
-                  <Button variant="secondary" fullWidth size="sm">
+                  {service.description && (
+                    <p className="text-xs">{service.description}</p>
+                  )}
+                </div>
+                {canManage && (
+                  <Button
+                    variant="secondary"
+                    fullWidth
+                    size="sm"
+                    onClick={() => setEditingService(service)}
+                  >
                     تعديل المعتمدين
                   </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {editingService && (
+        <ServiceApproversForm
+          service={editingService}
+          onSuccess={() => {
+            setEditingService(null);
+            loadData();
+          }}
+          onCancel={() => setEditingService(null)}
+        />
       )}
     </div>
   );
@@ -171,7 +116,7 @@ function AdminApprovalsPageContent() {
 
 export default function AdminApprovalsPage() {
   return (
-    <ProtectedRoute requiredRoles={["admin", "approver"]}>
+    <ProtectedRoute requiredRoles={["admin"]}>
       <AdminApprovalsPageContent />
     </ProtectedRoute>
   );

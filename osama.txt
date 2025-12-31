@@ -1,4 +1,18 @@
+اكونت جوجل 
+
+mail : Pmstu.sa@gmail.com      pass : Voro10203040*
+
+خلاص تم عملت حساب الفيرسل على نفس الايميل 
+pmstu.sa@gmail.com 
+Vorolth10203040*
+
+pmstu.sa@gmail.com 
+Pass 
+Feras1234560
+
+
 لبدء مشروع Next.js جديد:
+
 npm install -g create-next-app
 npx create-next-app@latest my-next-app
 cd my-next-app && npm run dev
@@ -9,9 +23,7 @@ cd server
 py manage.py migrate
 py manage.py runserver
 
-اكونت جوجل 
 
-mail : Pmstu.sa@gmail.com      pass : Voro10203040*
   
 college link 
 https://www.taibahu.edu.sa/admission-and-study/colleges
@@ -27,4 +39,39 @@ python manage.py seed_via_api
 
 
 
+
+
+
 استنادًا إلى هيكل المشروع الحالي في مجلدَي client وسيرفر، يرجى مراجعة كافة الملفات والكومبوننتس في الواجهة الأمامية لتحديد تبعياتها من الواجهة الخلفية. قم بمراجعة شاملة للـ APIs، والـ URLs، والموديلز في الباك وتأكد من صحة أسمائها وحقولها. بعد ذلك، قم بربطها وتحديثها بشكل صحيح، مع مراعاة التعامل الآمن مع الـ Tokens في كل صفحة، دون التأثير على لوجيك المشروع.
+
+
+echo "# printing-manegement-system" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/OsamaDeghidy/printing-manegement-system.git
+git push -u origin main
+…or push an existing repository from the command line
+git remote add origin https://github.com/OsamaDeghidy/printing-manegement-system.git
+git branch -M main
+git push -u origin main
+
+
+
+أولوية عالية
+استبدال alert() بـ Toast Notifications
+إزالة console.log من production code
+أولوية متوسطة
+إضافة Pagination للصفحات الطويلة
+تحسين Loading States
+توحيد رسائل الخطأ بالعربية
+أولوية منخفضة
+إضافة Charts للتقارير
+إضافة Export (Excel/PDF)
+WebSockets للإشعارات الفورية
+الخلاصة
+النظام جاهز للاستخدام
+الأمان جيد
+الأداء جيد
+UX يمكن تحسينه (تحسينات اختيارية)

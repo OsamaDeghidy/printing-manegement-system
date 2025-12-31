@@ -19,7 +19,8 @@ import {
   updateOrderStatus, 
   fetchCurrentUser, 
   updateDesignOrderStatus, 
-  updatePrintOrderStatus 
+  updatePrintOrderStatus,
+  downloadOrderReceipt
 } from "@/lib/api-client";
 import type { OrderDetail } from "@/data/orders";
 import type { User } from "@/lib/types";
@@ -34,6 +35,7 @@ export default function OrderDetailsPage() {
   const [newStatus, setNewStatus] = useState("");
   const [statusNote, setStatusNote] = useState("");
   const [updating, setUpdating] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [canUpdateStatus, setCanUpdateStatus] = useState(false);
 
@@ -90,51 +92,21 @@ export default function OrderDetailsPage() {
       setUpdating(true);
       
       // Use orderType from order detail to determine the correct endpoint
-      // If orderType is not set, try to determine from orderCode or service name
-      let orderType = order.orderType;
-      if (!orderType) {
-        // Fallback: determine from orderCode or service name
-        if (order.orderCode.includes("DESIGN") || order.service.name.includes("تصميم") || order.service.slug.includes("design")) {
-          orderType = "design_order";
-        } else if (order.orderCode.includes("PRINT") || order.service.name.includes("طباعة") || order.service.slug.includes("print")) {
-          orderType = "print_order";
-        } else {
-          orderType = "order";
-        }
-      }
-      
+      const orderType = order.orderType || "order";
       const orderCode = order.orderCode;
       
       console.log("Updating status:", { 
         orderId: order.id, 
         orderCode, 
         orderType, 
-        newStatus,
-        detectedOrderType: order.orderType || "not set, using fallback"
+        newStatus 
       });
       
       if (orderType === "design_order") {
-        // For design orders, use specific actions or update-status
-        if (newStatus === "in_design") {
-          await updateDesignOrderStatus(orderCode, "approve");
-        } else if (newStatus === "rejected") {
-          await updateDesignOrderStatus(orderCode, "reject");
-        } else if (newStatus === "returned") {
-          await updateDesignOrderStatus(orderCode, "return_to_requester");
-        } else {
-          // For other statuses, use update-status endpoint
-          await updateDesignOrderStatus(orderCode, newStatus, statusNote);
-        }
+        await updateDesignOrderStatus(orderCode, newStatus, statusNote);
       } else if (orderType === "print_order") {
-        // For print orders, use approve action for in_production or update-status for others
-        if (newStatus === "in_production") {
-          await updatePrintOrderStatus(orderCode, "approve");
-        } else {
-          // For other statuses, use update-status endpoint
-          await updatePrintOrderStatus(orderCode, newStatus, statusNote);
-        }
+        await updatePrintOrderStatus(orderCode, newStatus, statusNote);
       } else {
-        // For regular orders
         await updateOrderStatus(orderCode, newStatus, statusNote);
       }
       
@@ -153,6 +125,20 @@ export default function OrderDetailsPage() {
       alert(error.message || "فشل تحديث الحالة. تأكد من أن لديك الصلاحيات المطلوبة.");
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const handleDownloadReceipt = async () => {
+    if (!order) return;
+
+    try {
+      setDownloading(true);
+      await downloadOrderReceipt(order.orderCode);
+    } catch (error: any) {
+      console.error("Failed to download receipt:", error);
+      alert(error.message || "فشل تحميل الإيصال. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -283,7 +269,13 @@ export default function OrderDetailsPage() {
             تحديث الحالة
           </Button>
         )}
-        <Button variant="secondary">تحميل إيصال الطلب</Button>
+        <Button 
+          variant="secondary" 
+          onClick={handleDownloadReceipt}
+          disabled={downloading}
+        >
+          {downloading ? "جاري التحميل..." : "تحميل إيصال الطلب"}
+        </Button>
         <Button variant="ghost" asChild>
           <Link href={`/services/${order.service.slug}`}>إعادة تقديم طلب مشابه</Link>
         </Button>
@@ -304,7 +296,7 @@ export default function OrderDetailsPage() {
                 <Select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
-                  options={getStatusOptions(order.orderType || order.service.name)}
+                  options={getStatusOptions(order.orderType || "order")}
                 />
               </div>
               <div>

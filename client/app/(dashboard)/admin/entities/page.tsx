@@ -12,8 +12,10 @@ import {
 } from "@/lib/api-client";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { EntityForm, type EntityLevel } from "@/components/forms/entity-form";
+import { useAuth } from "@/lib/auth-context";
 
 function EntitiesPageContent() {
+  const { hasRole } = useAuth();
   const [entities, setEntities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"list" | "tree">("list");
@@ -21,6 +23,9 @@ function EntitiesPageContent() {
   const [selectedEntity, setSelectedEntity] = useState<any | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Check if user can manage entities (admin only)
+  const canManage = hasRole("admin");
 
   useEffect(() => {
     loadEntities();
@@ -29,11 +34,24 @@ function EntitiesPageContent() {
   const loadEntities = async () => {
     try {
       setLoading(true);
-      const data =
-        viewMode === "tree" ? await fetchEntityTree() : await fetchEntities();
-      setEntities(Array.isArray(data) ? data : []);
+      let data;
+      if (viewMode === "tree") {
+        data = await fetchEntityTree();
+      } else {
+        // Load all entities (not just active) for admin management
+        data = await fetchEntities(false);
+      }
+      // Handle paginated response
+      if (Array.isArray(data)) {
+        setEntities(data);
+      } else if (data?.results && Array.isArray(data.results)) {
+        setEntities(data.results);
+      } else {
+        setEntities([]);
+      }
     } catch (error) {
       console.error("Error loading entities:", error);
+      setEntities([]);
     } finally {
       setLoading(false);
     }
@@ -135,15 +153,17 @@ function EntitiesPageContent() {
           >
             هيكلي
           </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setSelectedEntity(null);
-              setShowForm("create");
-            }}
-          >
-            + إضافة جهة
-          </Button>
+          {canManage && (
+            <Button
+              variant="primary"
+              onClick={() => {
+                setSelectedEntity(null);
+                setShowForm("create");
+              }}
+            >
+              + إضافة جهة
+            </Button>
+          )}
         </div>
       </header>
 
@@ -195,27 +215,29 @@ function EntitiesPageContent() {
                     </p>
                   )}
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="secondary"
-                    fullWidth
-                    size="sm"
-                    onClick={() => {
-                      loadEntityDetail(entity.id);
-                    }}
-                  >
-                    تعديل
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    fullWidth
-                    size="sm"
-                    disabled={saving}
-                    onClick={() => handleDelete(entity.id)}
-                  >
-                    حذف
-                  </Button>
-                </div>
+                {canManage && (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="secondary"
+                      fullWidth
+                      size="sm"
+                      onClick={() => {
+                        loadEntityDetail(entity.id);
+                      }}
+                    >
+                      تعديل
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      fullWidth
+                      size="sm"
+                      disabled={saving}
+                      onClick={() => handleDelete(entity.id)}
+                    >
+                      حذف
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
