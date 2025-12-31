@@ -3,7 +3,7 @@
 import { ReactElement, cloneElement, forwardRef, isValidElement } from "react";
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "success";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -22,6 +22,8 @@ const variantClasses: Record<ButtonVariant, string> = {
     "bg-transparent text-[#111144] hover:bg-[#0a8e6e]/10 focus-visible:ring-[#0a8e6e]/20",
   danger:
     "bg-[#E53935] text-white hover:bg-[#d72521] focus-visible:ring-[#E53935]/40 border border-[#E53935]",
+  success:
+    "bg-[#0a8e6e] text-white hover:bg-[#0a8e6e]/90 focus-visible:ring-[#0a8e6e]/40 border border-[#0a8e6e]",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
