@@ -15,6 +15,9 @@ droplet
 ip : 
 pass : osam0Esmael
 
+go dady 
+vorolth@gmail.com 
+Vorolth10203040*
 لبدء مشروع Next.js جديد:
 
 npm install -g create-next-app
