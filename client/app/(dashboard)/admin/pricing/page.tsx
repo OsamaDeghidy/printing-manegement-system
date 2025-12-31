@@ -42,19 +42,15 @@ function AdminPricingPageContent() {
         fetchServicePricing(),
         fetchServices(),
       ]);
-      // Handle paginated responses
+      // Both functions return arrays directly
       if (Array.isArray(pricingData)) {
         setPricing(pricingData);
-      } else if (pricingData?.results && Array.isArray(pricingData.results)) {
-        setPricing(pricingData.results);
       } else {
         setPricing([]);
       }
       
       if (Array.isArray(servicesData)) {
         setServices(servicesData);
-      } else if (servicesData?.results && Array.isArray(servicesData.results)) {
-        setServices(servicesData.results);
       } else {
         setServices([]);
       }

@@ -67,8 +67,6 @@ function AdminReportsPageContent() {
       const data = await fetchEntities();
       if (Array.isArray(data)) {
         setEntities(data);
-      } else if (data?.results && Array.isArray(data.results)) {
-        setEntities(data.results);
       } else {
         setEntities([]);
       }

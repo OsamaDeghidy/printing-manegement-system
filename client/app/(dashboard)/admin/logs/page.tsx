@@ -43,8 +43,6 @@ function AdminLogsPageContent() {
       const data = await fetchUsers();
       if (Array.isArray(data)) {
         setUsers(data);
-      } else if (data?.results && Array.isArray(data.results)) {
-        setUsers(data.results);
       } else {
         setUsers([]);
       }

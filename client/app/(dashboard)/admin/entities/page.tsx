@@ -37,17 +37,23 @@ function EntitiesPageContent() {
       let data;
       if (viewMode === "tree") {
         data = await fetchEntityTree();
+        // fetchEntityTree may return paginated response
+        if (Array.isArray(data)) {
+          setEntities(data);
+        } else if (data && typeof data === 'object' && 'results' in data && Array.isArray(data.results)) {
+          setEntities(data.results);
+        } else {
+          setEntities([]);
+        }
       } else {
         // Load all entities (not just active) for admin management
         data = await fetchEntities(false);
-      }
-      // Handle paginated response
-      if (Array.isArray(data)) {
-        setEntities(data);
-      } else if (data?.results && Array.isArray(data.results)) {
-        setEntities(data.results);
-      } else {
-        setEntities([]);
+        // fetchEntities always returns Entity[]
+        if (Array.isArray(data)) {
+          setEntities(data);
+        } else {
+          setEntities([]);
+        }
       }
     } catch (error) {
       console.error("Error loading entities:", error);
