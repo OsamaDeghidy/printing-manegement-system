@@ -12,13 +12,91 @@ Pass
 Feras1234560
 
 droplet 
-ip : 
+ip : 206.189.78.188
 pass : osam0Esmael
-
+user : sammy
+pass : osama
 go dady 
 vorolth@gmail.com 
 Vorolth10203040*
 لبدء مشروع Next.js جديد:
+
+
+
+
+ ssh root@206.189.78.188     username
+# osam0Esmael                password
+ su sammy
+ cd ~/myprojectdir
+ source myprojectenv/bin/activate
+
+# su sammy
+# cd ~/myprojectapi
+# source myprojectenv/bin/activate
+# sudo apt install snap
+# sudo snap install --classic certbot
+# sudo ln -s /snap/bin/certbot/usr/bin/certbot
+# sudo certbot --nginx
+
+# لما غيرت الداتا بيز connection
+###################################
+sudo systemctl restart gunicorn
+sudo systemctl daemon-reload 
+sudo systemctl restart gunicorn.socket gunicorn.service
+sudo nginx -t && sudo systemctl restart nginx
+###################################
+sudo nano /etc/nginx/nginx.conf
+pip freeze > requirements.txt
+
+pip install -r requirements.txt
+python test_email.py 
+python network_test.py
+python django_email_test.py
+sudo nano /etc/nginx/nginx.conf
+
+# sudo nano /etc/nginx/sites-available/myproject
+# sudo ln -s /etc/nginx/sites-available/myproject /etc/nginx/sites-enabled
+custrus.com
+Osama5555
+python manage.py makemigrations
+python manage.py migrate
+python manage.py migrate users 0003_rename_teacher_to_instructor_tables --fake
+python manage.py runserver 0.0.0.0:8000
+python manage.py collectstatic --no-input
+
+python manage.py createsuperuser
+python manage.py collectstatic
+pip install -r requirements.txt
+
+pip install djangorestframework
+pip install djangorestframework-simplejwt
+pip install django-cors-headers
+pip install django-filter
+pip install django-ckeditor-5
+pip install pyyaml ua-parser user-agents
+pip install django-allauth
+pip install requests
+pip install cryptography
+pip install django-ckeditor
+chmod o+x /home/sammy
+chmod o+rx /home/sammy/myprojectdir
+# اجعل مجموعة الملفات www-data وتأكد من ملكية المجلد staticfiles
+sudo chown -R sammy:www-data /home/sammy/myprojectdir/staticfiles
+
+# مجلدات => 755 (rwxr-xr-x), ملفات => 644 (rw-r--r--)
+sudo find /home/sammy/myprojectdir/staticfiles -type d -exec chmod 755 {} +
+sudo find /home/sammy/myprojectdir/staticfiles -type f -exec chmod 644 {} +
+
+# تأكد أن المجلدات الأبوية قابلة للعبور (execute) من قبل nginx
+sudo chmod 755 /home/sammy
+sudo chmod 755 /home/sammy/myprojectdir
+
+
+
+sudo -u www-data test -r /home/sammy/myprojectdir/staticfiles/admin/css/base.css && echo "nginx can read file"
+curl -I http://206.189.78.188/static/admin/css/base.css
+
+
 
 npm install -g create-next-app
 npx create-next-app@latest my-next-app

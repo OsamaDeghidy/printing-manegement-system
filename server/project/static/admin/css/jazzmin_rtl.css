@@ -1,0 +1,319 @@
+/* Jazzmin RTL/LTR Support for Arabic and English */
+
+/* RTL Support for Arabic */
+html[dir="rtl"],
+html[lang="ar"] {
+    direction: rtl;
+    text-align: right;
+}
+
+html[dir="rtl"] .main-sidebar,
+html[lang="ar"] .main-sidebar {
+    right: 0 !important;
+    left: auto !important;
+    border-right: none !important;
+    border-left: 1px solid rgba(0, 0, 0, 0.125) !important;
+}
+
+html[dir="rtl"] .content-wrapper,
+html[lang="ar"] .content-wrapper {
+    margin-right: 250px !important;
+    margin-left: 0 !important;
+}
+
+html[dir="rtl"] .main-header,
+html[lang="ar"] .main-header {
+    margin-right: 250px !important;
+    margin-left: 0 !important;
+}
+
+html[dir="rtl"] .navbar-nav,
+html[lang="ar"] .navbar-nav {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .nav-sidebar .nav-link,
+html[lang="ar"] .nav-sidebar .nav-link {
+    text-align: right;
+    padding-right: 1rem;
+    padding-left: 0.5rem;
+}
+
+html[dir="rtl"] .nav-sidebar .nav-icon,
+html[lang="ar"] .nav-sidebar .nav-icon {
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+
+html[dir="rtl"] .nav-sidebar .nav-treeview,
+html[lang="ar"] .nav-sidebar .nav-treeview {
+    padding-right: 1.5rem;
+    padding-left: 0;
+}
+
+html[dir="rtl"] .nav-sidebar .nav-treeview .nav-link,
+html[lang="ar"] .nav-sidebar .nav-treeview .nav-link {
+    padding-right: 1.5rem;
+    padding-left: 0;
+}
+
+/* Flip chevron icons for RTL */
+html[dir="rtl"] .nav-sidebar .nav-link > .fa-angle-left,
+html[lang="ar"] .nav-sidebar .nav-link > .fa-angle-left {
+    transform: rotate(180deg);
+}
+
+html[dir="rtl"] .nav-sidebar .nav-link > .fa-chevron-left,
+html[lang="ar"] .nav-sidebar .nav-link > .fa-chevron-left {
+    transform: rotate(180deg);
+}
+
+/* Form fields RTL */
+html[dir="rtl"] .form-group,
+html[lang="ar"] .form-group {
+    text-align: right;
+}
+
+html[dir="rtl"] .form-control,
+html[lang="ar"] .form-control {
+    text-align: right;
+    direction: rtl;
+}
+
+html[dir="rtl"] label,
+html[lang="ar"] label {
+    text-align: right;
+    float: right;
+}
+
+html[dir="rtl"] .help-block,
+html[lang="ar"] .help-block {
+    text-align: right;
+}
+
+/* Tables RTL */
+html[dir="rtl"] table,
+html[lang="ar"] table {
+    direction: rtl;
+}
+
+html[dir="rtl"] .table th,
+html[lang="ar"] .table th {
+    text-align: right;
+}
+
+html[dir="rtl"] .table td,
+html[lang="ar"] .table td {
+    text-align: right;
+}
+
+/* Buttons and actions RTL */
+html[dir="rtl"] .btn-group,
+html[lang="ar"] .btn-group {
+    direction: rtl;
+}
+
+html[dir="rtl"] .btn-group .btn,
+html[lang="ar"] .btn-group .btn {
+    float: right;
+}
+
+html[dir="rtl"] .form-actions,
+html[lang="ar"] .form-actions {
+    text-align: right;
+}
+
+/* Breadcrumbs RTL */
+html[dir="rtl"] .breadcrumb,
+html[lang="ar"] .breadcrumb {
+    direction: rtl;
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .breadcrumb-item + .breadcrumb-item::before,
+html[lang="ar"] .breadcrumb-item + .breadcrumb-item::before {
+    content: "\\";
+    padding-left: 0.5rem;
+    padding-right: 0;
+}
+
+/* Pagination RTL */
+html[dir="rtl"] .pagination,
+html[lang="ar"] .pagination {
+    direction: rtl;
+    flex-direction: row-reverse;
+}
+
+/* Search box RTL */
+html[dir="rtl"] .main-header .navbar-search,
+html[lang="ar"] .main-header .navbar-search {
+    margin-right: auto;
+    margin-left: 0;
+}
+
+html[dir="rtl"] .main-header .form-control,
+html[lang="ar"] .main-header .form-control {
+    padding-right: 2.5rem;
+    padding-left: 0.75rem;
+}
+
+/* User menu RTL */
+html[dir="rtl"] .navbar-nav .dropdown-menu,
+html[lang="ar"] .navbar-nav .dropdown-menu {
+    right: 0;
+    left: auto;
+    text-align: right;
+}
+
+/* Messages and alerts RTL */
+html[dir="rtl"] .alert,
+html[lang="ar"] .alert {
+    text-align: right;
+    direction: rtl;
+}
+
+html[dir="rtl"] .alert .close,
+html[lang="ar"] .alert .close {
+    left: 0;
+    right: auto;
+}
+
+/* Modal RTL */
+html[dir="rtl"] .modal-header,
+html[lang="ar"] .modal-header {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .modal-footer,
+html[lang="ar"] .modal-footer {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .modal-footer .btn,
+html[lang="ar"] .modal-footer .btn {
+    margin-right: 0.25rem;
+    margin-left: 0;
+}
+
+/* Tabs RTL */
+html[dir="rtl"] .nav-tabs,
+html[lang="ar"] .nav-tabs {
+    flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .nav-tabs .nav-item,
+html[lang="ar"] .nav-tabs .nav-item {
+    margin-right: 0;
+    margin-left: 0.2rem;
+}
+
+/* Filters sidebar RTL */
+html[dir="rtl"] #changelist-filter,
+html[lang="ar"] #changelist-filter {
+    right: 0;
+    left: auto;
+    border-right: 1px solid #dee2e6;
+    border-left: none;
+}
+
+html[dir="rtl"] #changelist-filter h2,
+html[lang="ar"] #changelist-filter h2 {
+    text-align: right;
+}
+
+html[dir="rtl"] #changelist-filter h3,
+html[lang="ar"] #changelist-filter h3 {
+    text-align: right;
+}
+
+html[dir="rtl"] #changelist-filter ul,
+html[lang="ar"] #changelist-filter ul {
+    text-align: right;
+    padding-right: 0;
+    padding-left: 1rem;
+}
+
+/* Responsive: When sidebar is collapsed */
+@media (max-width: 991.98px) {
+    html[dir="rtl"] .content-wrapper,
+    html[lang="ar"] .content-wrapper {
+        margin-right: 0 !important;
+    }
+    
+    html[dir="rtl"] .main-header,
+    html[lang="ar"] .main-header {
+        margin-right: 0 !important;
+    }
+    
+    html[dir="rtl"] .main-sidebar,
+    html[lang="ar"] .main-sidebar {
+        transform: translateX(100%);
+    }
+    
+    html[dir="rtl"] .sidebar-open .main-sidebar,
+    html[lang="ar"] .sidebar-open .main-sidebar {
+        transform: translateX(0);
+    }
+}
+
+/* LTR Support for English (default) */
+html[dir="ltr"],
+html[lang="en"] {
+    direction: ltr;
+    text-align: left;
+}
+
+html[dir="ltr"] .main-sidebar,
+html[lang="en"] .main-sidebar {
+    left: 0 !important;
+    right: auto !important;
+    border-left: none !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.125) !important;
+}
+
+html[dir="ltr"] .content-wrapper,
+html[lang="en"] .content-wrapper {
+    margin-left: 250px !important;
+    margin-right: 0 !important;
+}
+
+html[dir="ltr"] .main-header,
+html[lang="en"] .main-header {
+    margin-left: 250px !important;
+    margin-right: 0 !important;
+}
+
+html[dir="ltr"] .nav-sidebar .nav-link,
+html[lang="en"] .nav-sidebar .nav-link {
+    text-align: left;
+    padding-left: 1rem;
+    padding-right: 0.5rem;
+}
+
+html[dir="ltr"] .nav-sidebar .nav-icon,
+html[lang="en"] .nav-sidebar .nav-icon {
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+html[dir="ltr"] .nav-sidebar .nav-treeview,
+html[lang="en"] .nav-sidebar .nav-treeview {
+    padding-left: 1.5rem;
+    padding-right: 0;
+}
+
+html[dir="ltr"] .nav-sidebar .nav-treeview .nav-link,
+html[lang="en"] .nav-sidebar .nav-treeview .nav-link {
+    padding-left: 1.5rem;
+    padding-right: 0;
+}
+
+/* Auto-detect language from Django's LANGUAGE_CODE */
+body[data-language="ar"] {
+    direction: rtl;
+}
+
+body[data-language="en"] {
+    direction: ltr;
+}
+
