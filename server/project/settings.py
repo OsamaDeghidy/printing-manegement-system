@@ -13,9 +13,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DEBUG=(bool, True),
     SECRET_KEY=(str, "change-me"),
-    ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
+    ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1", "admin.pmstu.com"]),
     DATABASE_URL=(str, f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
-    CORS_ALLOWED_ORIGINS=(list, ["http://localhost:3000", "http://127.0.0.1:3000"]),
+    CORS_ALLOWED_ORIGINS=(list, [
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000",
+        "https://www.pmstu.com",
+        "https://pmstu.com",
+    ]),
 )
 env_file = BASE_DIR / ".env"
 if env_file.exists():

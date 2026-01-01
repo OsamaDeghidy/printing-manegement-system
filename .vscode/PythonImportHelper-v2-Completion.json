@@ -1349,6 +1349,22 @@
         "documentation": {}
     },
     {
+        "label": "action",
+        "importPath": "rest_framework.decorators",
+        "description": "rest_framework.decorators",
+        "isExtraImport": true,
+        "detail": "rest_framework.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "Response",
+        "importPath": "rest_framework.response",
+        "description": "rest_framework.response",
+        "isExtraImport": true,
+        "detail": "rest_framework.response",
+        "documentation": {}
+    },
+    {
         "label": "Response",
         "importPath": "rest_framework.response",
         "description": "rest_framework.response",
@@ -1486,6 +1502,14 @@
     },
     {
         "label": "IsSystemAdmin",
+        "importPath": "accounts.permissions",
+        "description": "accounts.permissions",
+        "isExtraImport": true,
+        "detail": "accounts.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "IsPrintManager",
         "importPath": "accounts.permissions",
         "description": "accounts.permissions",
         "isExtraImport": true,
@@ -2992,6 +3016,22 @@
         "documentation": {}
     },
     {
+        "label": "i18n_patterns",
+        "importPath": "django.conf.urls.i18n",
+        "description": "django.conf.urls.i18n",
+        "isExtraImport": true,
+        "detail": "django.conf.urls.i18n",
+        "documentation": {}
+    },
+    {
+        "label": "gettext_lazy",
+        "importPath": "django.utils.translation",
+        "description": "django.utils.translation",
+        "isExtraImport": true,
+        "detail": "django.utils.translation",
+        "documentation": {}
+    },
+    {
         "label": "SpectacularAPIView",
         "importPath": "drf_spectacular.views",
         "description": "drf_spectacular.views",
@@ -3239,6 +3279,14 @@
         "description": "rest_framework.test",
         "isExtraImport": true,
         "detail": "rest_framework.test",
+        "documentation": {}
+    },
+    {
+        "label": "AdminOverviewViewSet",
+        "importPath": "system.views",
+        "description": "system.views",
+        "isExtraImport": true,
+        "detail": "system.views",
         "documentation": {}
     },
     {
@@ -3660,7 +3708,7 @@
         "kind": 6,
         "importPath": "server.catalog.serializers",
         "description": "server.catalog.serializers",
-        "peekOfCode": "class ServicePricingSerializer(serializers.ModelSerializer):\n    class Meta:\n        model = ServicePricing\n        fields = [\n            \"id\",\n            \"internal_cost\",\n            \"external_cost\",\n            \"notes\",\n            \"effective_from\",\n            \"effective_to\",",
+        "peekOfCode": "class ServicePricingSerializer(serializers.ModelSerializer):\n    service = serializers.PrimaryKeyRelatedField(\n        queryset=Service.objects.all(),\n        write_only=True,\n        required=True\n    )\n    service_name = serializers.CharField(source=\"service.name\", read_only=True)\n    class Meta:\n        model = ServicePricing\n        fields = [",
         "detail": "server.catalog.serializers",
         "documentation": {}
     },
@@ -3804,7 +3852,7 @@
         "kind": 6,
         "importPath": "server.entities.views",
         "description": "server.entities.views",
-        "peekOfCode": "class EntityViewSet(viewsets.ModelViewSet):\n    \"\"\"\n    ViewSet لإدارة الجهات\n    \"\"\"\n    queryset = Entity.objects.select_related(\"parent\").prefetch_related(\"children\").all()\n    permission_classes = [IsAuthenticated]\n    def get_serializer_class(self):\n        if self.action == \"list\":\n            return EntityListSerializer\n        if self.action == \"tree\":",
+        "peekOfCode": "class EntityViewSet(viewsets.ModelViewSet):\n    \"\"\"\n    ViewSet لإدارة الجهات\n    \"\"\"\n    queryset = Entity.objects.select_related(\"parent\").prefetch_related(\"children\").all()\n    def get_permissions(self):\n        \"\"\"\n        Allow all authenticated users to read entities (list, retrieve),\n        but only admins can create, update, or delete.\n        \"\"\"",
         "detail": "server.entities.views",
         "documentation": {}
     },
@@ -3921,7 +3969,7 @@
         "kind": 6,
         "importPath": "server.inventory.serializers",
         "description": "server.inventory.serializers",
-        "peekOfCode": "class InventoryLogSerializer(serializers.ModelSerializer):\n    class Meta:\n        model = InventoryLog\n        fields = [\n            \"id\",\n            \"item\",\n            \"operation\",\n            \"quantity\",\n            \"balance_after\",\n            \"reference_order\",",
+        "peekOfCode": "class InventoryLogSerializer(serializers.ModelSerializer):\n    item = serializers.PrimaryKeyRelatedField(\n        queryset=InventoryItem.objects.all(),\n        required=False,\n        allow_null=True\n    )\n    class Meta:\n        model = InventoryLog\n        fields = [\n            \"id\",",
         "detail": "server.inventory.serializers",
         "documentation": {}
     },
@@ -3975,7 +4023,7 @@
         "kind": 6,
         "importPath": "server.inventory.views",
         "description": "server.inventory.views",
-        "peekOfCode": "class InventoryItemViewSet(viewsets.ModelViewSet):\n    queryset = InventoryItem.objects.all()\n    serializer_class = InventoryItemSerializer\n    permission_classes = [IsAuthenticated & IsSystemAdmin]\n    filter_backends = [filters.SearchFilter, filters.OrderingFilter]\n    search_fields = [\"name\", \"sku\", \"category\"]\n    ordering_fields = [\"name\", \"current_quantity\", \"updated_at\"]\n    @transaction.atomic\n    @action(detail=True, methods=[\"post\"])\n    def adjust(self, request, pk=None):",
+        "peekOfCode": "class InventoryItemViewSet(viewsets.ModelViewSet):\n    queryset = InventoryItem.objects.all()\n    serializer_class = InventoryItemSerializer\n    filter_backends = [filters.SearchFilter, filters.OrderingFilter]\n    search_fields = [\"name\", \"sku\", \"category\"]\n    ordering_fields = [\"name\", \"current_quantity\", \"updated_at\"]\n    def get_permissions(self):\n        \"\"\"\n        Allow all authenticated users to read inventory items (list, retrieve),\n        but only admins can create, update, or delete.",
         "detail": "server.inventory.views",
         "documentation": {}
     },
@@ -4605,7 +4653,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\nenv = environ.Env(\n    DEBUG=(bool, True),\n    SECRET_KEY=(str, \"change-me\"),\n    ALLOWED_HOSTS=(list, [\"localhost\", \"127.0.0.1\"]),\n    DATABASE_URL=(str, f\"sqlite:///{BASE_DIR / 'db.sqlite3'}\"),\n    CORS_ALLOWED_ORIGINS=(list, [\"http://localhost:3000\", \"http://127.0.0.1:3000\"]),\n)\nenv_file = BASE_DIR / \".env\"\nif env_file.exists():",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\nenv = environ.Env(\n    DEBUG=(bool, True),\n    SECRET_KEY=(str, \"change-me\"),\n    ALLOWED_HOSTS=(list, [\"localhost\", \"127.0.0.1\", \"admin.pmstu.com\"]),\n    DATABASE_URL=(str, f\"sqlite:///{BASE_DIR / 'db.sqlite3'}\"),\n    CORS_ALLOWED_ORIGINS=(list, [\n        \"http://localhost:3000\", \n        \"http://127.0.0.1:3000\",\n        \"https://www.pmstu.com\",",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4614,7 +4662,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "env = environ.Env(\n    DEBUG=(bool, True),\n    SECRET_KEY=(str, \"change-me\"),\n    ALLOWED_HOSTS=(list, [\"localhost\", \"127.0.0.1\"]),\n    DATABASE_URL=(str, f\"sqlite:///{BASE_DIR / 'db.sqlite3'}\"),\n    CORS_ALLOWED_ORIGINS=(list, [\"http://localhost:3000\", \"http://127.0.0.1:3000\"]),\n)\nenv_file = BASE_DIR / \".env\"\nif env_file.exists():\n    environ.Env.read_env(env_file)",
+        "peekOfCode": "env = environ.Env(\n    DEBUG=(bool, True),\n    SECRET_KEY=(str, \"change-me\"),\n    ALLOWED_HOSTS=(list, [\"localhost\", \"127.0.0.1\", \"admin.pmstu.com\"]),\n    DATABASE_URL=(str, f\"sqlite:///{BASE_DIR / 'db.sqlite3'}\"),\n    CORS_ALLOWED_ORIGINS=(list, [\n        \"http://localhost:3000\", \n        \"http://127.0.0.1:3000\",\n        \"https://www.pmstu.com\",\n        \"https://pmstu.com\",",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4632,7 +4680,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "SECRET_KEY = env(\"SECRET_KEY\")\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = env(\"DEBUG\")\nALLOWED_HOSTS = env.list(\"ALLOWED_HOSTS\")\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",",
+        "peekOfCode": "SECRET_KEY = env(\"SECRET_KEY\")\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = env(\"DEBUG\")\nALLOWED_HOSTS = env.list(\"ALLOWED_HOSTS\")\n# Application definition\nINSTALLED_APPS = [\n    \"jazzmin\",  # Must be before django.contrib.admin\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4641,7 +4689,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "DEBUG = env(\"DEBUG\")\nALLOWED_HOSTS = env.list(\"ALLOWED_HOSTS\")\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",",
+        "peekOfCode": "DEBUG = env(\"DEBUG\")\nALLOWED_HOSTS = env.list(\"ALLOWED_HOSTS\")\n# Application definition\nINSTALLED_APPS = [\n    \"jazzmin\",  # Must be before django.contrib.admin\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4650,7 +4698,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "ALLOWED_HOSTS = env.list(\"ALLOWED_HOSTS\")\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",\n    # Third party",
+        "peekOfCode": "ALLOWED_HOSTS = env.list(\"ALLOWED_HOSTS\")\n# Application definition\nINSTALLED_APPS = [\n    \"jazzmin\",  # Must be before django.contrib.admin\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4659,7 +4707,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "INSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",\n    # Third party\n    \"corsheaders\",\n    \"rest_framework\",",
+        "peekOfCode": "INSTALLED_APPS = [\n    \"jazzmin\",  # Must be before django.contrib.admin\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",\n    # Third party\n    \"corsheaders\",",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4668,7 +4716,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "MIDDLEWARE = [\n    \"django.middleware.security.SecurityMiddleware\",\n    \"corsheaders.middleware.CorsMiddleware\",\n    \"django.contrib.sessions.middleware.SessionMiddleware\",\n    \"django.middleware.common.CommonMiddleware\",\n    \"django.middleware.csrf.CsrfViewMiddleware\",\n    \"django.contrib.auth.middleware.AuthenticationMiddleware\",\n    \"django.contrib.messages.middleware.MessageMiddleware\",\n    \"django.middleware.clickjacking.XFrameOptionsMiddleware\",\n]",
+        "peekOfCode": "MIDDLEWARE = [\n    \"django.middleware.security.SecurityMiddleware\",\n    \"corsheaders.middleware.CorsMiddleware\",\n    \"django.contrib.sessions.middleware.SessionMiddleware\",\n    \"django.middleware.locale.LocaleMiddleware\",  # Language support\n    \"django.middleware.common.CommonMiddleware\",\n    \"django.middleware.csrf.CsrfViewMiddleware\",\n    \"django.contrib.auth.middleware.AuthenticationMiddleware\",\n    \"django.contrib.messages.middleware.MessageMiddleware\",\n    \"django.middleware.clickjacking.XFrameOptionsMiddleware\",",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4731,7 +4779,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "LANGUAGE_CODE = \"ar\"\nTIME_ZONE = \"Asia/Riyadh\"\nUSE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Static & Media files\nSTATIC_URL = \"/static/\"\nSTATIC_ROOT = BASE_DIR / \"staticfiles\"\nMEDIA_URL = \"/media/\"\nMEDIA_ROOT = BASE_DIR / \"media\"",
+        "peekOfCode": "LANGUAGE_CODE = \"en\"\nTIME_ZONE = \"Asia/Riyadh\"\nUSE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Supported languages\nLANGUAGES = [\n    ('ar', 'العربية'),\n    ('en', 'English'),\n]",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4740,7 +4788,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "TIME_ZONE = \"Asia/Riyadh\"\nUSE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Static & Media files\nSTATIC_URL = \"/static/\"\nSTATIC_ROOT = BASE_DIR / \"staticfiles\"\nMEDIA_URL = \"/media/\"\nMEDIA_ROOT = BASE_DIR / \"media\"\n# REST Framework",
+        "peekOfCode": "TIME_ZONE = \"Asia/Riyadh\"\nUSE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Supported languages\nLANGUAGES = [\n    ('ar', 'العربية'),\n    ('en', 'English'),\n]\nLOCALE_PATHS = [",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4749,7 +4797,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "USE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Static & Media files\nSTATIC_URL = \"/static/\"\nSTATIC_ROOT = BASE_DIR / \"staticfiles\"\nMEDIA_URL = \"/media/\"\nMEDIA_ROOT = BASE_DIR / \"media\"\n# REST Framework\nREST_FRAMEWORK = {",
+        "peekOfCode": "USE_I18N = True\nUSE_L10N = True\nUSE_TZ = True\n# Supported languages\nLANGUAGES = [\n    ('ar', 'العربية'),\n    ('en', 'English'),\n]\nLOCALE_PATHS = [\n    BASE_DIR / \"locale\",",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4758,7 +4806,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "USE_L10N = True\nUSE_TZ = True\n# Static & Media files\nSTATIC_URL = \"/static/\"\nSTATIC_ROOT = BASE_DIR / \"staticfiles\"\nMEDIA_URL = \"/media/\"\nMEDIA_ROOT = BASE_DIR / \"media\"\n# REST Framework\nREST_FRAMEWORK = {\n    \"DEFAULT_AUTHENTICATION_CLASSES\": (",
+        "peekOfCode": "USE_L10N = True\nUSE_TZ = True\n# Supported languages\nLANGUAGES = [\n    ('ar', 'العربية'),\n    ('en', 'English'),\n]\nLOCALE_PATHS = [\n    BASE_DIR / \"locale\",\n]",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4767,7 +4815,25 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "USE_TZ = True\n# Static & Media files\nSTATIC_URL = \"/static/\"\nSTATIC_ROOT = BASE_DIR / \"staticfiles\"\nMEDIA_URL = \"/media/\"\nMEDIA_ROOT = BASE_DIR / \"media\"\n# REST Framework\nREST_FRAMEWORK = {\n    \"DEFAULT_AUTHENTICATION_CLASSES\": (\n        \"rest_framework_simplejwt.authentication.JWTAuthentication\",",
+        "peekOfCode": "USE_TZ = True\n# Supported languages\nLANGUAGES = [\n    ('ar', 'العربية'),\n    ('en', 'English'),\n]\nLOCALE_PATHS = [\n    BASE_DIR / \"locale\",\n]\n# Static & Media files",
+        "detail": "server.project.settings",
+        "documentation": {}
+    },
+    {
+        "label": "LANGUAGES",
+        "kind": 5,
+        "importPath": "server.project.settings",
+        "description": "server.project.settings",
+        "peekOfCode": "LANGUAGES = [\n    ('ar', 'العربية'),\n    ('en', 'English'),\n]\nLOCALE_PATHS = [\n    BASE_DIR / \"locale\",\n]\n# Static & Media files\nSTATIC_URL = \"/static/\"\nSTATIC_ROOT = BASE_DIR / \"staticfiles\"",
+        "detail": "server.project.settings",
+        "documentation": {}
+    },
+    {
+        "label": "LOCALE_PATHS",
+        "kind": 5,
+        "importPath": "server.project.settings",
+        "description": "server.project.settings",
+        "peekOfCode": "LOCALE_PATHS = [\n    BASE_DIR / \"locale\",\n]\n# Static & Media files\nSTATIC_URL = \"/static/\"\nSTATIC_ROOT = BASE_DIR / \"staticfiles\"\nSTATICFILES_DIRS = [\n    BASE_DIR / \"project\" / \"static\",\n]\nMEDIA_URL = \"/media/\"",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4776,7 +4842,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "STATIC_URL = \"/static/\"\nSTATIC_ROOT = BASE_DIR / \"staticfiles\"\nMEDIA_URL = \"/media/\"\nMEDIA_ROOT = BASE_DIR / \"media\"\n# REST Framework\nREST_FRAMEWORK = {\n    \"DEFAULT_AUTHENTICATION_CLASSES\": (\n        \"rest_framework_simplejwt.authentication.JWTAuthentication\",\n    ),\n    \"DEFAULT_PERMISSION_CLASSES\": (",
+        "peekOfCode": "STATIC_URL = \"/static/\"\nSTATIC_ROOT = BASE_DIR / \"staticfiles\"\nSTATICFILES_DIRS = [\n    BASE_DIR / \"project\" / \"static\",\n]\nMEDIA_URL = \"/media/\"\nMEDIA_ROOT = BASE_DIR / \"media\"\n# REST Framework\nREST_FRAMEWORK = {\n    \"DEFAULT_AUTHENTICATION_CLASSES\": (",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4785,7 +4851,16 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "STATIC_ROOT = BASE_DIR / \"staticfiles\"\nMEDIA_URL = \"/media/\"\nMEDIA_ROOT = BASE_DIR / \"media\"\n# REST Framework\nREST_FRAMEWORK = {\n    \"DEFAULT_AUTHENTICATION_CLASSES\": (\n        \"rest_framework_simplejwt.authentication.JWTAuthentication\",\n    ),\n    \"DEFAULT_PERMISSION_CLASSES\": (\n        \"rest_framework.permissions.IsAuthenticated\",",
+        "peekOfCode": "STATIC_ROOT = BASE_DIR / \"staticfiles\"\nSTATICFILES_DIRS = [\n    BASE_DIR / \"project\" / \"static\",\n]\nMEDIA_URL = \"/media/\"\nMEDIA_ROOT = BASE_DIR / \"media\"\n# REST Framework\nREST_FRAMEWORK = {\n    \"DEFAULT_AUTHENTICATION_CLASSES\": (\n        \"rest_framework_simplejwt.authentication.JWTAuthentication\",",
+        "detail": "server.project.settings",
+        "documentation": {}
+    },
+    {
+        "label": "STATICFILES_DIRS",
+        "kind": 5,
+        "importPath": "server.project.settings",
+        "description": "server.project.settings",
+        "peekOfCode": "STATICFILES_DIRS = [\n    BASE_DIR / \"project\" / \"static\",\n]\nMEDIA_URL = \"/media/\"\nMEDIA_ROOT = BASE_DIR / \"media\"\n# REST Framework\nREST_FRAMEWORK = {\n    \"DEFAULT_AUTHENTICATION_CLASSES\": (\n        \"rest_framework_simplejwt.authentication.JWTAuthentication\",\n    ),",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4839,7 +4914,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "CORS_ALLOWED_ORIGINS = env.list(\"CORS_ALLOWED_ORIGINS\")\nCORS_ALLOW_CREDENTIALS = True\nAUTH_USER_MODEL = \"accounts.User\"\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "peekOfCode": "CORS_ALLOWED_ORIGINS = env.list(\"CORS_ALLOWED_ORIGINS\")\nCORS_ALLOW_CREDENTIALS = True\nAUTH_USER_MODEL = \"accounts.User\"\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"\n# Jazzmin Settings - Modern Django Admin Theme\nJAZZMIN_SETTINGS = {\n    # Title on the login screen (19 chars max)\n    \"site_title\": \"إدارة مطابع الجامعة\",\n    # Title on the brand (19 chars max)\n    \"site_brand\": \"مطابع طيبة\",",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4848,7 +4923,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "CORS_ALLOW_CREDENTIALS = True\nAUTH_USER_MODEL = \"accounts.User\"\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "peekOfCode": "CORS_ALLOW_CREDENTIALS = True\nAUTH_USER_MODEL = \"accounts.User\"\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"\n# Jazzmin Settings - Modern Django Admin Theme\nJAZZMIN_SETTINGS = {\n    # Title on the login screen (19 chars max)\n    \"site_title\": \"إدارة مطابع الجامعة\",\n    # Title on the brand (19 chars max)\n    \"site_brand\": \"مطابع طيبة\",\n    # Logo to use for your site, must be present in static files",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4857,7 +4932,7 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "AUTH_USER_MODEL = \"accounts.User\"\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "peekOfCode": "AUTH_USER_MODEL = \"accounts.User\"\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"\n# Jazzmin Settings - Modern Django Admin Theme\nJAZZMIN_SETTINGS = {\n    # Title on the login screen (19 chars max)\n    \"site_title\": \"إدارة مطابع الجامعة\",\n    # Title on the brand (19 chars max)\n    \"site_brand\": \"مطابع طيبة\",\n    # Logo to use for your site, must be present in static files\n    \"site_logo\": \"admin/img/logo.png\",",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4866,7 +4941,25 @@
         "kind": 5,
         "importPath": "server.project.settings",
         "description": "server.project.settings",
-        "peekOfCode": "DEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "peekOfCode": "DEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"\n# Jazzmin Settings - Modern Django Admin Theme\nJAZZMIN_SETTINGS = {\n    # Title on the login screen (19 chars max)\n    \"site_title\": \"إدارة مطابع الجامعة\",\n    # Title on the brand (19 chars max)\n    \"site_brand\": \"مطابع طيبة\",\n    # Logo to use for your site, must be present in static files\n    \"site_logo\": \"admin/img/logo.png\",\n    # Logo to use for login form (relative to static files)",
+        "detail": "server.project.settings",
+        "documentation": {}
+    },
+    {
+        "label": "JAZZMIN_SETTINGS",
+        "kind": 5,
+        "importPath": "server.project.settings",
+        "description": "server.project.settings",
+        "peekOfCode": "JAZZMIN_SETTINGS = {\n    # Title on the login screen (19 chars max)\n    \"site_title\": \"إدارة مطابع الجامعة\",\n    # Title on the brand (19 chars max)\n    \"site_brand\": \"مطابع طيبة\",\n    # Logo to use for your site, must be present in static files\n    \"site_logo\": \"admin/img/logo.png\",\n    # Logo to use for login form (relative to static files)\n    \"login_logo\": \"admin/img/logo.png\",\n    # Logo to use for login form in dark themes (relative to static files)",
+        "detail": "server.project.settings",
+        "documentation": {}
+    },
+    {
+        "label": "JAZZMIN_UI_TWEAKS",
+        "kind": 5,
+        "importPath": "server.project.settings",
+        "description": "server.project.settings",
+        "peekOfCode": "JAZZMIN_UI_TWEAKS = {\n    \"navbar_small_text\": False,\n    \"footer_small_text\": False,\n    \"body_small_text\": False,\n    \"brand_small_text\": False,\n    \"brand_colour\": \"navbar-primary\",\n    \"accent\": \"accent-primary\",\n    \"navbar\": \"navbar-dark\",\n    \"no_navbar_border\": False,\n    \"navbar_fixed\": True,",
         "detail": "server.project.settings",
         "documentation": {}
     },
@@ -4884,7 +4977,7 @@
         "kind": 5,
         "importPath": "server.project.urls",
         "description": "server.project.urls",
-        "peekOfCode": "urlpatterns = [\n    path(\"admin/\", admin.site.urls),\n    path(\"api/\", include((api_urlpatterns, \"api\"), namespace=\"api\")),\n]\nif settings.DEBUG:\n    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)",
+        "peekOfCode": "urlpatterns = i18n_patterns(\n    path(\"admin/\", admin.site.urls),\n    prefix_default_language=False,  # Don't prefix default language (Arabic)\n)\n# API URLs (no language prefix needed)\nurlpatterns += [\n    path(\"api/\", include((api_urlpatterns, \"api\"), namespace=\"api\")),\n]\n# Language switcher\nurlpatterns += [",
         "detail": "server.project.urls",
         "documentation": {}
     },
@@ -5028,7 +5121,7 @@
         "kind": 6,
         "importPath": "server.system.serializers",
         "description": "server.system.serializers",
-        "peekOfCode": "class ApprovalPolicySerializer(serializers.ModelSerializer):\n    selective_services = serializers.PrimaryKeyRelatedField(\n        many=True, queryset=Service.objects.all(), required=False\n    )\n    class Meta:\n        model = ApprovalPolicy\n        fields = [\"id\", \"is_global_enabled\", \"selective_services\", \"updated_at\"]\n        read_only_fields = [\"id\", \"updated_at\"]\nclass AuditLogSerializer(serializers.ModelSerializer):\n    class Meta:",
+        "peekOfCode": "class ApprovalPolicySerializer(serializers.ModelSerializer):\n    selective_services = serializers.PrimaryKeyRelatedField(\n        many=True, queryset=Service.objects.all(), required=False\n    )\n    class Meta:\n        model = ApprovalPolicy\n        fields = [\"id\", \"is_global_enabled\", \"selective_services\", \"updated_at\"]\n        read_only_fields = [\"id\", \"updated_at\"]\nclass AuditLogSerializer(serializers.ModelSerializer):\n    actor_name = serializers.CharField(source=\"actor.full_name\", read_only=True)",
         "detail": "server.system.serializers",
         "documentation": {}
     },
@@ -5037,7 +5130,7 @@
         "kind": 6,
         "importPath": "server.system.serializers",
         "description": "server.system.serializers",
-        "peekOfCode": "class AuditLogSerializer(serializers.ModelSerializer):\n    class Meta:\n        model = AuditLog\n        fields = [\"id\", \"actor\", \"action\", \"metadata\", \"created_at\"]\n        read_only_fields = fields",
+        "peekOfCode": "class AuditLogSerializer(serializers.ModelSerializer):\n    actor_name = serializers.CharField(source=\"actor.full_name\", read_only=True)\n    actor_email = serializers.CharField(source=\"actor.email\", read_only=True)\n    severity = serializers.SerializerMethodField()\n    class Meta:\n        model = AuditLog\n        fields = [\"id\", \"actor\", \"actor_name\", \"actor_email\", \"action\", \"metadata\", \"severity\", \"created_at\"]\n        read_only_fields = fields\n    def get_severity(self, obj):\n        \"\"\"استخراج severity من metadata أو تحديده بناءً على action\"\"\"",
         "detail": "server.system.serializers",
         "documentation": {}
     },
@@ -5046,7 +5139,7 @@
         "kind": 5,
         "importPath": "server.system.urls",
         "description": "server.system.urls",
-        "peekOfCode": "router = DefaultRouter()\nrouter.register(r\"system/settings\", SystemSettingViewSet, basename=\"system-setting\")\nrouter.register(r\"system/approval-policy\", ApprovalPolicyViewSet, basename=\"approval-policy\")\nrouter.register(r\"system/audit-log\", AuditLogViewSet, basename=\"audit-log\")\nrouter.register(r\"system/field-settings\", FieldSettingsViewSet, basename=\"field-settings\")\nrouter.register(r\"system/service-settings\", ServiceSettingsViewSet, basename=\"service-settings\")\nrouter.register(r\"admin/reports\", ReportsViewSet, basename=\"reports\")\nurlpatterns = router.urls",
+        "peekOfCode": "router = DefaultRouter()\nrouter.register(r\"system/settings\", SystemSettingViewSet, basename=\"system-setting\")\nrouter.register(r\"system/approval-policy\", ApprovalPolicyViewSet, basename=\"approval-policy\")\nrouter.register(r\"system/audit-log\", AuditLogViewSet, basename=\"audit-log\")\nrouter.register(r\"system/field-settings\", FieldSettingsViewSet, basename=\"field-settings\")\nrouter.register(r\"system/service-settings\", ServiceSettingsViewSet, basename=\"service-settings\")\nrouter.register(r\"admin/reports\", ReportsViewSet, basename=\"reports\")\nrouter.register(r\"admin/overview\", AdminOverviewViewSet, basename=\"admin-overview\")\nurlpatterns = router.urls",
         "detail": "server.system.urls",
         "documentation": {}
     },
@@ -5073,7 +5166,7 @@
         "kind": 6,
         "importPath": "server.system.views",
         "description": "server.system.views",
-        "peekOfCode": "class ApprovalPolicyViewSet(\n    mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet\n):\n    queryset = ApprovalPolicy.objects.all()\n    serializer_class = ApprovalPolicySerializer\n    permission_classes = [IsAuthenticated & IsSystemAdmin]\n    def get_object(self):\n        policy, _ = ApprovalPolicy.objects.get_or_create()\n        return policy\nclass AuditLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):",
+        "peekOfCode": "class ApprovalPolicyViewSet(\n    mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet\n):\n    queryset = ApprovalPolicy.objects.all()\n    serializer_class = ApprovalPolicySerializer\n    permission_classes = [IsAuthenticated & IsSystemAdmin]\n    def get_object(self):\n        policy, _ = ApprovalPolicy.objects.get_or_create()\n        return policy\n    @action(detail=False, methods=[\"get\", \"patch\"])",
         "detail": "server.system.views",
         "documentation": {}
     },
@@ -5082,7 +5175,7 @@
         "kind": 6,
         "importPath": "server.system.views",
         "description": "server.system.views",
-        "peekOfCode": "class AuditLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):\n    queryset = AuditLog.objects.select_related(\"actor\").all()\n    serializer_class = AuditLogSerializer\n    permission_classes = [IsAuthenticated & IsSystemAdmin]\nclass FieldSettingsViewSet(viewsets.ViewSet):\n    \"\"\"\n    ViewSet لإدارة إعدادات الحقول (إخفاء/إظهار، الإلزامية، الخيارات)\n    \"\"\"\n    permission_classes = [IsAuthenticated & IsPrintManager]\n    @action(detail=False, methods=[\"get\"], url_path=\"list\")",
+        "peekOfCode": "class AuditLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):\n    queryset = AuditLog.objects.select_related(\"actor\").all()\n    serializer_class = AuditLogSerializer\n    permission_classes = [IsAuthenticated & IsSystemAdmin]\n    def get_queryset(self):\n        queryset = AuditLog.objects.select_related(\"actor\").all()\n        # فلترة حسب البحث\n        search = self.request.query_params.get(\"search\")\n        if search:\n            queryset = queryset.filter(action__icontains=search)",
         "detail": "server.system.views",
         "documentation": {}
     },
@@ -5105,11 +5198,20 @@
         "documentation": {}
     },
     {
+        "label": "AdminOverviewViewSet",
+        "kind": 6,
+        "importPath": "server.system.views",
+        "description": "server.system.views",
+        "peekOfCode": "class AdminOverviewViewSet(viewsets.ViewSet):\n    \"\"\"\n    ViewSet لإحصائيات لوحة المدير التنفيذية\n    \"\"\"\n    permission_classes = [IsAuthenticated & (IsPrintManager | IsSystemAdmin)]\n    @action(detail=False, methods=[\"get\"])\n    def stats(self, request):\n        \"\"\"إحصائيات شاملة للمدير\"\"\"\n        from orders.models import Order, DesignOrder, PrintOrder\n        from inventory.models import InventoryItem",
+        "detail": "server.system.views",
+        "documentation": {}
+    },
+    {
         "label": "ReportsViewSet",
         "kind": 6,
         "importPath": "server.system.views",
         "description": "server.system.views",
-        "peekOfCode": "class ReportsViewSet(viewsets.ViewSet):\n    \"\"\"\n    ViewSet للتقارير المحسّنة مع الفلاتر المتقدمة\n    \"\"\"\n    permission_classes = [IsAuthenticated & IsPrintManager]\n    @action(detail=False, methods=[\"get\"])\n    def orders(self, request):\n        \"\"\"تقرير الطلبات مع فلترة متقدمة\"\"\"\n        from orders.models import Order, DesignOrder, PrintOrder\n        from entities.models import Entity",
+        "peekOfCode": "class ReportsViewSet(viewsets.ViewSet):\n    \"\"\"\n    ViewSet للتقارير المحسّنة مع الفلاتر المتقدمة\n    \"\"\"\n    permission_classes = [IsAuthenticated & (IsPrintManager | IsSystemAdmin)]\n    @action(detail=False, methods=[\"get\"])\n    def orders(self, request):\n        \"\"\"تقرير الطلبات مع فلترة متقدمة\"\"\"\n        from orders.models import Order, DesignOrder, PrintOrder\n        from entities.models import Entity",
         "detail": "server.system.views",
         "documentation": {}
     },
