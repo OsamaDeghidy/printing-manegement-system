@@ -294,9 +294,9 @@ export async function fetchOrders(): Promise<OrderSummary[]> {
   try {
     // Fetch all order types: regular orders, design orders, and print orders
     const [regularOrders, designOrders, printOrders] = await Promise.allSettled([
-      apiFetch<any>("/orders/orders/").catch(() => []),
-      apiFetch<any>("/orders/design-orders/").catch(() => []),
-      apiFetch<any>("/orders/print-orders/").catch(() => []),
+      apiFetch<any>("/orders/").catch(() => []),
+      apiFetch<any>("/design-orders/").catch(() => []),
+      apiFetch<any>("/print-orders/").catch(() => []),
     ]);
 
     const allOrders: OrderSummary[] = [];
@@ -337,11 +337,11 @@ export async function fetchOrderDetail(orderCode: string): Promise<OrderDetail |
   try {
     // Try regular orders first
     try {
-      const ordersResponse = await apiFetch<any>("/orders/orders/");
+      const ordersResponse = await apiFetch<any>("/orders/");
       const orders = extractArrayFromResponse<BackendOrderDetailResponse>(ordersResponse);
       const order = orders.find((o) => o.order_code === orderCode);
       if (order) {
-        const detail = await apiFetch<BackendOrderDetailResponse>(`/orders/orders/${order.id}/`);
+        const detail = await apiFetch<BackendOrderDetailResponse>(`/orders/${order.id}/`);
         return mapBackendOrderToDetail(detail);
       }
     } catch (error) {
@@ -350,11 +350,11 @@ export async function fetchOrderDetail(orderCode: string): Promise<OrderDetail |
 
     // Try design orders
     try {
-      const designOrdersResponse = await apiFetch<any>("/orders/design-orders/");
+      const designOrdersResponse = await apiFetch<any>("/design-orders/");
       const designOrders = extractArrayFromResponse<any>(designOrdersResponse);
       const designOrder = designOrders.find((o) => o.order_code === orderCode);
       if (designOrder) {
-        const detail = await apiFetch<any>(`/orders/design-orders/${designOrder.id}/`);
+        const detail = await apiFetch<any>(`/design-orders/${designOrder.id}/`);
         return mapDesignOrderToDetail(detail);
       }
     } catch (error) {
@@ -363,11 +363,11 @@ export async function fetchOrderDetail(orderCode: string): Promise<OrderDetail |
 
     // Try print orders
     try {
-      const printOrdersResponse = await apiFetch<any>("/orders/print-orders/");
+      const printOrdersResponse = await apiFetch<any>("/print-orders/");
       const printOrders = extractArrayFromResponse<any>(printOrdersResponse);
       const printOrder = printOrders.find((o) => o.order_code === orderCode);
       if (printOrder) {
-        const detail = await apiFetch<any>(`/orders/print-orders/${printOrder.id}/`);
+        const detail = await apiFetch<any>(`/print-orders/${printOrder.id}/`);
         return mapPrintOrderToDetail(detail);
       }
     } catch (error) {
@@ -391,7 +391,7 @@ export async function updateOrderStatus(
     throw new Error(`Order ${orderCode} not found`);
   }
   
-  return apiFetch(`/orders/orders/${orderDetail.id}/update-status/`, {
+  return apiFetch(`/orders/${orderDetail.id}/update-status/`, {
     method: "POST",
     body: JSON.stringify({ status, note: note || "" }),
   });
@@ -408,7 +408,7 @@ export async function updateDesignOrderStatus(
     throw new Error(`Design order ${orderCode} not found`);
   }
   
-  return apiFetch(`/orders/design-orders/${orderDetail.id}/update-status/`, {
+  return apiFetch(`/design-orders/${orderDetail.id}/update-status/`, {
     method: "POST",
     body: JSON.stringify({ status, note: note || "" }),
   });
@@ -425,7 +425,7 @@ export async function updatePrintOrderStatus(
     throw new Error(`Print order ${orderCode} not found`);
   }
   
-  return apiFetch(`/orders/print-orders/${orderDetail.id}/update-status/`, {
+  return apiFetch(`/print-orders/${orderDetail.id}/update-status/`, {
     method: "POST",
     body: JSON.stringify({ status, note: note || "" }),
   });
@@ -441,11 +441,11 @@ export async function downloadOrderReceipt(orderCode: string): Promise<void> {
   // Determine the correct endpoint based on order type
   let endpoint = "";
   if (orderDetail.orderType === "design_order") {
-    endpoint = `/orders/design-orders/${orderDetail.id}/receipt/`;
+    endpoint = `/design-orders/${orderDetail.id}/receipt/`;
   } else if (orderDetail.orderType === "print_order") {
-    endpoint = `/orders/print-orders/${orderDetail.id}/receipt/`;
+    endpoint = `/print-orders/${orderDetail.id}/receipt/`;
   } else {
-    endpoint = `/orders/orders/${orderDetail.id}/receipt/`;
+    endpoint = `/orders/${orderDetail.id}/receipt/`;
   }
   
   // Get auth headers using the same method as apiFetch
@@ -945,12 +945,12 @@ export async function updateUser(
 
 // Design Orders API
 export async function fetchDesignOrders() {
-  return apiFetch("/orders/design-orders/");
+  return apiFetch("/design-orders/");
 }
 
 export async function createDesignOrder(data: FormData) {
   const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/orders/design-orders/`, {
+  const response = await fetch(`${API_BASE_URL}/design-orders/`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -963,12 +963,12 @@ export async function createDesignOrder(data: FormData) {
 
 // Print Orders API
 export async function fetchPrintOrders() {
-  return apiFetch("/orders/print-orders/");
+  return apiFetch("/print-orders/");
 }
 
 export async function createPrintOrder(data: FormData) {
   const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
-  const response = await fetch(`${API_BASE_URL}/orders/print-orders/`, {
+  const response = await fetch(`${API_BASE_URL}/print-orders/`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,

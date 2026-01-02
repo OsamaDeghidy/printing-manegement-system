@@ -4599,7 +4599,7 @@
         "kind": 5,
         "importPath": "server.orders.urls",
         "description": "server.orders.urls",
-        "peekOfCode": "router = DefaultRouter()\n# Register under \"orders/\" prefix to match frontend expectations\nrouter.register(r\"orders/orders\", OrderViewSet, basename=\"order\")\nrouter.register(r\"orders/design-orders\", DesignOrderViewSet, basename=\"design-order\")\nrouter.register(r\"orders/print-orders\", PrintOrderViewSet, basename=\"print-order\")\nurlpatterns = router.urls",
+        "peekOfCode": "router = DefaultRouter()\n# Main orders endpoint - accessible at /api/orders/ (via include in project/urls.py line 15)\nrouter.register(r\"orders\", OrderViewSet, basename=\"order\")\n# Design orders endpoint - accessible at /api/design-orders/\nrouter.register(r\"design-orders\", DesignOrderViewSet, basename=\"design-order\")\n# Print orders endpoint - accessible at /api/print-orders/\nrouter.register(r\"print-orders\", PrintOrderViewSet, basename=\"print-order\")\nurlpatterns = router.urls",
         "detail": "server.orders.urls",
         "documentation": {}
     },

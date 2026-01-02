@@ -22,7 +22,8 @@ Vorolth10203040*
 لبدء مشروع Next.js جديد:
 
 
-
+python manage.py seed_demo
+python manage.py seed_via_api
 
  ssh root@206.189.78.188     username
 # osam0Esmael                password
